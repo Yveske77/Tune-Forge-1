@@ -25,6 +25,8 @@ export interface TrackState {
 interface AppState {
   // Global
   activeTrack: 'A' | 'B';
+  currentProjectId: number | null;
+  currentProjectName: string;
   tracks: {
     A: TrackState;
     B: TrackState;
@@ -38,12 +40,15 @@ interface AppState {
   
   // Actions
   setActiveTrack: (track: 'A' | 'B') => void;
+  setCurrentProject: (id: number | null, name: string) => void;
   updateSection: (track: 'A' | 'B', sectionId: string, updates: Partial<Section>) => void;
   updateLane: (track: 'A' | 'B', sectionId: string, lane: LaneType, value: number) => void;
   addSection: (track: 'A' | 'B') => void;
   removeSection: (track: 'A' | 'B', sectionId: string) => void;
   setGenre: (updates: Partial<AppState['genre']>) => void;
   toggleInstrument: (track: 'A' | 'B', sectionId: string, instrumentId: string) => void;
+  loadProject: (tracks: { A: TrackState; B: TrackState }, genre: AppState['genre']) => void;
+  resetToDefault: () => void;
 }
 
 const DEFAULT_SECTIONS: Section[] = [
@@ -63,27 +68,37 @@ const DEFAULT_INSTRUMENTS: Instrument[] = [
   { id: 'syn-1', name: 'Arp Synth', category: 'lead', role: 'Moving' },
 ];
 
-export const useStore = create<AppState>((set) => ({
-  activeTrack: 'A',
+const DEFAULT_GENRE = {
+  main: 'Electronic',
+  sub: 'Deep House',
+  era: '2016',
+  region: 'UK'
+};
+
+const getDefaultState = () => ({
+  activeTrack: 'A' as const,
+  currentProjectId: null,
+  currentProjectName: 'Untitled Project',
   tracks: {
     A: {
       sections: DEFAULT_SECTIONS,
       instruments: DEFAULT_INSTRUMENTS,
     },
     B: {
-      sections: JSON.parse(JSON.stringify(DEFAULT_SECTIONS)), // Deep copy
+      sections: JSON.parse(JSON.stringify(DEFAULT_SECTIONS)),
       instruments: DEFAULT_INSTRUMENTS,
     }
   },
-  genre: {
-    main: 'Electronic',
-    sub: 'Deep House',
-    era: '2016',
-    region: 'UK'
-  },
+  genre: DEFAULT_GENRE,
+});
+
+export const useStore = create<AppState>((set) => ({
+  ...getDefaultState(),
 
   setActiveTrack: (track) => set({ activeTrack: track }),
   
+  setCurrentProject: (id, name) => set({ currentProjectId: id, currentProjectName: name }),
+
   updateSection: (track, sectionId, updates) => set((state) => ({
     tracks: {
       ...state.tracks,
@@ -159,5 +174,9 @@ export const useStore = create<AppState>((set) => ({
         })
       }
     }
-  }))
+  })),
+
+  loadProject: (tracks, genre) => set({ tracks, genre }),
+
+  resetToDefault: () => set(getDefaultState()),
 }));

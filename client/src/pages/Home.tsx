@@ -3,12 +3,13 @@ import { Shell } from '@/components/layout/Shell';
 import { Tube } from '@/components/sequencer/Tube';
 import { InstrumentRack } from '@/components/sequencer/InstrumentRack';
 import { PromptPreview } from '@/components/sequencer/PromptPreview';
+import { ProjectManager } from '@/components/ProjectManager';
 import { useStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import { Layers, Activity } from 'lucide-react';
 
 export default function Home() {
-  const { activeTrack, setActiveTrack } = useStore();
+  const { activeTrack, setActiveTrack, currentProjectName } = useStore();
 
   return (
     <Shell>
@@ -18,28 +19,35 @@ export default function Home() {
           <div className="w-8 h-8 rounded bg-primary flex items-center justify-center shadow-[0_0_15px_rgba(124,58,237,0.5)]">
             <Activity className="text-white w-5 h-5" />
           </div>
-          <h1 className="text-xl font-display font-bold tracking-tight text-white">DAiW <span className="text-white/30 text-sm font-mono font-normal ml-2">INTENTION ENGINE v0.9</span></h1>
+          <div>
+            <h1 className="text-xl font-display font-bold tracking-tight text-white">DAiW <span className="text-white/30 text-sm font-mono font-normal ml-2">v0.9</span></h1>
+            <p className="text-xs text-white/40 font-mono">{currentProjectName}</p>
+          </div>
         </div>
         
-        <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-white/5">
-           <button 
-             onClick={() => setActiveTrack('A')}
-             className={cn(
-               "px-4 py-1.5 rounded text-sm font-mono font-bold transition-all",
-               activeTrack === 'A' ? "bg-primary text-white shadow-lg" : "text-white/40 hover:text-white/70"
-             )}
-           >
-             Arrangement A
-           </button>
-           <button 
-             onClick={() => setActiveTrack('B')}
-             className={cn(
-               "px-4 py-1.5 rounded text-sm font-mono font-bold transition-all",
-               activeTrack === 'B' ? "bg-secondary text-black shadow-lg" : "text-white/40 hover:text-white/70"
-             )}
-           >
-             Arrangement B
-           </button>
+        <div className="flex items-center gap-3">
+          <ProjectManager />
+          
+          <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-white/5">
+             <button 
+               onClick={() => setActiveTrack('A')}
+               className={cn(
+                 "px-4 py-1.5 rounded text-sm font-mono font-bold transition-all",
+                 activeTrack === 'A' ? "bg-primary text-white shadow-lg" : "text-white/40 hover:text-white/70"
+               )}
+             >
+               Arrangement A
+             </button>
+             <button 
+               onClick={() => setActiveTrack('B')}
+               className={cn(
+                 "px-4 py-1.5 rounded text-sm font-mono font-bold transition-all",
+                 activeTrack === 'B' ? "bg-secondary text-black shadow-lg" : "text-white/40 hover:text-white/70"
+               )}
+             >
+               Arrangement B
+             </button>
+          </div>
         </div>
       </header>
 

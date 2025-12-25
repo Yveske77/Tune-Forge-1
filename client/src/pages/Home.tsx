@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { Shell } from '@/components/layout/Shell';
 import { Tube } from '@/components/sequencer/Tube';
 import { InstrumentRack } from '@/components/sequencer/InstrumentRack';
 import { PromptPreview } from '@/components/sequencer/PromptPreview';
 import { ProjectManager } from '@/components/ProjectManager';
+import { UserMenu } from '@/components/UserMenu';
+import { AgentPanel } from '@/components/AgentPanel';
 import { useStore } from '@/lib/store';
+import { compileToSuno } from '@/lib/compiler';
 import { cn } from '@/lib/utils';
 import { Activity } from 'lucide-react';
 
@@ -13,6 +16,9 @@ export default function Home() {
   const currentProjectName = useStore((s) => s.currentProjectName);
   const setActiveVariant = useStore((s) => s.setActiveVariant);
   const activeVariant = doc.activeVariant;
+  const [agentPanelOpen, setAgentPanelOpen] = useState(false);
+  
+  const compiledPrompt = useMemo(() => compileToSuno(doc), [doc]);
 
   return (
     <Shell>
@@ -29,6 +35,7 @@ export default function Home() {
         
         <div className="flex items-center gap-3">
           <ProjectManager />
+          <UserMenu onOpenAgentPanel={() => setAgentPanelOpen(true)} />
           
           <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-white/5">
             <button 
@@ -68,6 +75,12 @@ export default function Home() {
           <PromptPreview />
         </div>
       </div>
+      
+      <AgentPanel 
+        isOpen={agentPanelOpen} 
+        onClose={() => setAgentPanelOpen(false)} 
+        currentPrompt={compiledPrompt}
+      />
     </Shell>
   );
 }

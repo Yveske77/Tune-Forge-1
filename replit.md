@@ -10,6 +10,8 @@ The application provides a visual sequencer interface where users can:
 - Control musical parameters through lane-based visualization
 - Compile intentions into formatted prompts for AI music generators
 - Save and manage multiple project documents
+- Secure user authentication with individual data isolation
+- AI-powered prompt quality analysis and improvement suggestions
 
 ## User Preferences
 
@@ -30,19 +32,44 @@ The frontend follows a feature-based structure with:
 - `/components/sequencer/` - Main music sequencer UI (Tube, InstrumentRack, PromptPreview)
 - `/components/layout/` - Application shell and layout components
 - `/components/ui/` - Reusable shadcn/ui components
+- `/components/UserMenu.tsx` - User account management and logout
+- `/components/AgentPanel.tsx` - AI assistant interface for QA and improvements
 - `/lib/` - Core utilities (store, compiler, API client)
 - `/data/` - Static dictionaries and block definitions (genres, instruments, pro blocks)
+- `/hooks/use-auth.ts` - Authentication state management hook
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express
 - **Language**: TypeScript (ESM modules)
 - **API Pattern**: RESTful JSON API under `/api/` prefix
+- **Authentication**: Replit Auth (OpenID Connect) with session management
+- **Rate Limiting**: Custom middleware for API protection
 - **Development**: Vite dev server with HMR proxied through Express
 
 The server handles:
-- Project CRUD operations (`/api/projects`)
+- User authentication (`/api/login`, `/api/logout`, `/api/auth/user`)
+- Project CRUD operations (`/api/projects`) with user isolation
+- File upload/download/management (`/api/files`) with per-user storage
+- AI Agent routes (`/api/agent/*`) for QA and improvements
 - Static file serving in production
 - Vite middleware integration in development
+
+### Authentication System
+- **Provider**: Replit OpenID Connect (supports Google, GitHub, Apple, email/password)
+- **Session Storage**: PostgreSQL-backed sessions via connect-pg-simple
+- **Session TTL**: 7 days
+- **Protected Routes**: All `/api/projects`, `/api/files`, and `/api/agent` routes require authentication
+
+### AI Agent System
+The AI agent provides:
+- **Prompt Quality Analysis**: Scores prompts (0-100) and provides optimization suggestions
+- **Best Practice Search**: Researches improvements for specific topics
+- **Full QA Assessment**: Comprehensive UI/functionality checks
+- **Agent Logs**: Historical record of all AI agent activities
+
+Located in:
+- `/server/services/aiAgent.ts` - Core AI agent logic
+- `/server/agentRoutes.ts` - API endpoints for agent features
 
 ### Data Storage
 - **Database**: PostgreSQL via Drizzle ORM
@@ -50,8 +77,28 @@ The server handles:
 - **Migrations**: Drizzle Kit with `db:push` command
 
 Current schema includes:
-- `users` - Basic user authentication (id, username, password)
-- `projects` - Musical documents stored as JSONB with timestamps
+- `users` - User accounts (id, email, firstName, lastName, profileImageUrl)
+- `sessions` - Authentication sessions
+- `projects` - Musical documents stored as JSONB with userId ownership
+- `user_files` - User-uploaded files with metadata
+- `agent_logs` - AI agent activity history
+- `conversations` - AI chat conversations
+- `messages` - AI chat messages
+
+### File Management
+- **Upload Directory**: `./uploads/{userId}/`
+- **Max File Size**: 10MB
+- **Allowed Types**: Audio (mp3, wav, ogg), Images (png, jpeg, webp), Text/JSON
+- **User Isolation**: Files stored in user-specific directories
+
+### Security Features
+- **Rate Limiting**: 
+  - API: 100 requests/minute
+  - Agent: 10 requests/minute
+  - Uploads: 20 requests/minute
+- **Input Validation**: Zod schemas for all request bodies
+- **User Isolation**: Projects and files scoped to authenticated user
+- **Session Security**: httpOnly cookies, secure flag, 7-day TTL
 
 ### Document Model
 The core `Document` type represents a complete musical intention with:
@@ -75,6 +122,16 @@ The `/lib/compiler.ts` module transforms Document state into platform-specific p
 - **PostgreSQL**: Primary data store, connection via `DATABASE_URL` environment variable
 - **Drizzle ORM**: Type-safe database queries and schema management
 - **pg**: Node.js PostgreSQL client
+- **connect-pg-simple**: PostgreSQL session storage
+
+### AI Integration
+- **OpenAI**: Via Replit AI Integrations (gpt-4o, gpt-image-1)
+- **Environment**: `AI_INTEGRATIONS_OPENAI_API_KEY`, `AI_INTEGRATIONS_OPENAI_BASE_URL`
+
+### Authentication
+- **openid-client**: OpenID Connect client for Replit Auth
+- **passport**: Authentication middleware
+- **express-session**: Session management
 
 ### UI Framework Dependencies
 - **Radix UI**: Full primitive component set (dialog, dropdown, tabs, etc.)
@@ -92,3 +149,14 @@ The `/lib/compiler.ts` module transforms Document state into platform-specific p
 - `@replit/vite-plugin-runtime-error-modal` - Error overlay in development
 - `@replit/vite-plugin-cartographer` - Development tooling
 - `@replit/vite-plugin-dev-banner` - Development environment indicator
+
+## Recent Changes
+
+### December 2025
+- Added Replit Auth integration for secure user authentication
+- Implemented user-scoped projects and files (data isolation)
+- Added AI Agent system for prompt quality analysis and improvements
+- Created file upload/download system with user isolation
+- Added rate limiting for API protection
+- Implemented AI-powered QA monitoring system
+- Added continuous improvement agent for best practices research

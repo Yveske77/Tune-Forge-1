@@ -1,7 +1,7 @@
 import { type Project, type InsertProject, type UserFile, type InsertUserFile, type AgentLog, type InsertAgentLog } from "@shared/schema";
 import { db } from "./db";
 import { projects, userFiles, agentLogs } from "@shared/schema";
-import { eq, desc, and, isNull, or } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   // Projects
@@ -20,6 +20,7 @@ export interface IStorage {
   
   // Agent Logs
   getAgentLogs(limit?: number): Promise<AgentLog[]>;
+  getAgentLogsByUser(userId: string, limit?: number): Promise<AgentLog[]>;
   createAgentLog(log: InsertAgentLog): Promise<AgentLog>;
 }
 
@@ -29,13 +30,8 @@ export class DbStorage implements IStorage {
     return await db.select().from(projects).orderBy(desc(projects.updatedAt));
   }
 
-  async getProjectsByUser(userId: string | null): Promise<Project[]> {
-    if (!userId) {
-      return await db.select().from(projects).where(isNull(projects.userId)).orderBy(desc(projects.updatedAt));
-    }
-    return await db.select().from(projects).where(
-      or(eq(projects.userId, userId), isNull(projects.userId))
-    ).orderBy(desc(projects.updatedAt));
+  async getProjectsByUser(userId: string): Promise<Project[]> {
+    return await db.select().from(projects).where(eq(projects.userId, userId)).orderBy(desc(projects.updatedAt));
   }
 
   async getProject(id: number): Promise<Project | undefined> {
@@ -85,6 +81,10 @@ export class DbStorage implements IStorage {
   // Agent Logs
   async getAgentLogs(limit: number = 50): Promise<AgentLog[]> {
     return await db.select().from(agentLogs).orderBy(desc(agentLogs.createdAt)).limit(limit);
+  }
+
+  async getAgentLogsByUser(userId: string, limit: number = 50): Promise<AgentLog[]> {
+    return await db.select().from(agentLogs).where(eq(agentLogs.userId, userId)).orderBy(desc(agentLogs.createdAt)).limit(limit);
   }
 
   async createAgentLog(log: InsertAgentLog): Promise<AgentLog> {

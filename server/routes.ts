@@ -4,11 +4,28 @@ import { storage } from "./storage";
 import { insertProjectSchema } from "@shared/schema";
 import { z } from "zod";
 import { isAuthenticated } from "./replit_integrations/auth";
+import { registerAgentRoutes } from "./agentRoutes";
+import { registerFileRoutes } from "./fileRoutes";
+import { apiRateLimiter, agentRateLimiter, uploadRateLimiter } from "./middleware/rateLimit";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  
+  // Apply rate limiting to specific routes BEFORE the general API limiter
+  // Order matters - specific limiters first, then general
+  app.use("/api/files/upload", uploadRateLimiter);
+  app.use("/api/agent", agentRateLimiter);
+  // General API limiter for all other routes
+  app.use("/api/projects", apiRateLimiter);
+  app.use("/api/files", apiRateLimiter);
+  
+  // Register AI agent routes
+  registerAgentRoutes(app);
+  
+  // Register file management routes
+  registerFileRoutes(app);
   
   // Get all projects for current user
   app.get("/api/projects", isAuthenticated, async (req: any, res) => {
@@ -37,7 +54,8 @@ export async function registerRoutes(
         return res.status(404).json({ error: "Project not found" });
       }
       
-      if (project.userId && project.userId !== userId) {
+      // Strict ownership check - projects without userId or with different userId are blocked
+      if (project.userId !== userId) {
         return res.status(403).json({ error: "Access denied" });
       }
 
@@ -82,7 +100,8 @@ export async function registerRoutes(
         return res.status(404).json({ error: "Project not found" });
       }
       
-      if (existingProject.userId && existingProject.userId !== userId) {
+      // Strict ownership check - projects without userId or with different userId are blocked
+      if (existingProject.userId !== userId) {
         return res.status(403).json({ error: "Access denied" });
       }
 
@@ -114,7 +133,8 @@ export async function registerRoutes(
         return res.status(404).json({ error: "Project not found" });
       }
       
-      if (existingProject.userId && existingProject.userId !== userId) {
+      // Strict ownership check - projects without userId or with different userId are blocked
+      if (existingProject.userId !== userId) {
         return res.status(403).json({ error: "Access denied" });
       }
 

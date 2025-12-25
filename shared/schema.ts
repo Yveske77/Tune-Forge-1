@@ -46,6 +46,7 @@ export type UserFile = typeof userFiles.$inferSelect;
 
 export const agentLogs = pgTable("agent_logs", {
   id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
   runType: text("run_type").notNull(),
   status: text("status").notNull(),
   summary: text("summary"),

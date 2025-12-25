@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useStore } from '@/lib/store';
+import { useStore, Document } from '@/lib/store';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getProjects, createProject, updateProject, deleteProject, getProject } from '@/lib/api';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -11,7 +11,13 @@ import { cn } from '@/lib/utils';
 import type { Project } from '@shared/schema';
 
 export function ProjectManager() {
-  const { tracks, genre, currentProjectId, currentProjectName, setCurrentProject, loadProject, resetToDefault } = useStore();
+  const doc = useStore((s) => s.doc);
+  const currentProjectId = useStore((s) => s.currentProjectId);
+  const currentProjectName = useStore((s) => s.currentProjectName);
+  const setCurrentProject = useStore((s) => s.setCurrentProject);
+  const loadDocument = useStore((s) => s.loadDocument);
+  const resetToDefault = useStore((s) => s.resetToDefault);
+  
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
@@ -24,20 +30,15 @@ export function ProjectManager() {
 
   const saveMutation = useMutation({
     mutationFn: async (name: string) => {
+      const projectData = {
+        name,
+        document: doc as any,
+      };
+      
       if (currentProjectId) {
-        return updateProject(currentProjectId, {
-          name,
-          trackA: tracks.A,
-          trackB: tracks.B,
-          genre,
-        });
+        return updateProject(currentProjectId, projectData);
       } else {
-        return createProject({
-          name,
-          trackA: tracks.A,
-          trackB: tracks.B,
-          genre,
-        });
+        return createProject(projectData);
       }
     },
     onSuccess: (project) => {
@@ -54,10 +55,9 @@ export function ProjectManager() {
   const loadMutation = useMutation({
     mutationFn: getProject,
     onSuccess: (project) => {
-      loadProject(
-        { A: project.trackA as any, B: project.trackB as any },
-        project.genre as any
-      );
+      if (project.document) {
+        loadDocument(project.document as Document);
+      }
       setCurrentProject(project.id, project.name);
       toast.success(`Loaded "${project.name}"`);
       setIsOpen(false);
@@ -96,22 +96,21 @@ export function ProjectManager() {
 
   return (
     <>
-      {/* Save Button */}
       <Button
         variant="outline"
         size="sm"
         className="h-8 bg-white/5 border-white/10 hover:bg-white/10"
         onClick={handleSave}
         disabled={saveMutation.isPending}
+        data-testid="button-save-project"
       >
         <Save className="w-3 h-3 mr-2" />
         {currentProjectId ? 'Update' : 'Save'}
       </Button>
 
-      {/* Load/Manage Button */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm" className="h-8 bg-white/5 border-white/10 hover:bg-white/10">
+          <Button variant="outline" size="sm" className="h-8 bg-white/5 border-white/10 hover:bg-white/10" data-testid="button-open-projects">
             <FolderOpen className="w-3 h-3 mr-2" />
             Projects
           </Button>
@@ -127,6 +126,7 @@ export function ProjectManager() {
               variant="outline"
               className="w-full justify-start h-auto p-4 border-primary/30 hover:bg-primary/10"
               onClick={handleNewProject}
+              data-testid="button-new-project"
             >
               <Plus className="w-4 h-4 mr-3" />
               <div className="text-left">
@@ -148,6 +148,7 @@ export function ProjectManager() {
                   "group flex items-center justify-between p-4 rounded-lg border transition-all hover:bg-white/5",
                   currentProjectId === project.id ? "border-primary/50 bg-primary/5" : "border-white/10"
                 )}
+                data-testid={`project-item-${project.id}`}
               >
                 <button
                   onClick={() => loadMutation.mutate(project.id)}
@@ -170,6 +171,7 @@ export function ProjectManager() {
                   className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
                   onClick={() => deleteMutation.mutate(project.id)}
                   disabled={deleteMutation.isPending}
+                  data-testid={`button-delete-project-${project.id}`}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -179,7 +181,6 @@ export function ProjectManager() {
         </DialogContent>
       </Dialog>
 
-      {/* Save As Dialog */}
       <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
         <DialogContent className="sm:max-w-[425px] bg-card border-white/10">
           <DialogHeader>
@@ -198,6 +199,7 @@ export function ProjectManager() {
                   saveMutation.mutate(projectName);
                 }
               }}
+              data-testid="input-project-name"
             />
           </div>
           <DialogFooter>
@@ -212,6 +214,7 @@ export function ProjectManager() {
               onClick={() => saveMutation.mutate(projectName)}
               disabled={!projectName.trim() || saveMutation.isPending}
               className="bg-primary hover:bg-primary/90"
+              data-testid="button-confirm-save"
             >
               Save
             </Button>

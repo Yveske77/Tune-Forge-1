@@ -20,9 +20,7 @@ export type User = typeof users.$inferSelect;
 export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  trackA: jsonb("track_a").notNull(),
-  trackB: jsonb("track_b").notNull(),
-  genre: jsonb("genre").notNull(),
+  document: jsonb("document").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

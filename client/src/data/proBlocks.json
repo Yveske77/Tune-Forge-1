@@ -1,0 +1,613 @@
+{
+  "packId": "daiw-pro-blocks-v1",
+  "name": "DAiW Pro Blocks Vol. 1",
+  "version": "1.0.0",
+  "blocks": [
+    {
+      "id": "build_classic_lift",
+      "category": "Build",
+      "label": "Classic Pre-Chorus Lift",
+      "sectionType": "Pre-Chorus",
+      "lanes": {
+        "energy": 55,
+        "density": 40,
+        "brightness": 60,
+        "vocalPresence": 45
+      },
+      "modifiers": [
+        "rising tension",
+        "filtered elements",
+        "anticipation"
+      ],
+      "layerHints": {
+        "voices": [
+          "lead restrained"
+        ],
+        "instruments": [
+          "filtered drums",
+          "muted bass",
+          "riser fx"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "build_pressure_cooker",
+      "category": "Build",
+      "label": "Pressure Cooker",
+      "sectionType": "Build",
+      "lanes": {
+        "energy": 60,
+        "density": 25,
+        "brightness": 50,
+        "vocalPresence": 30
+      },
+      "modifiers": [
+        "contained intensity",
+        "minimalism",
+        "tension without release"
+      ],
+      "layerHints": {
+        "voices": [
+          "whispers"
+        ],
+        "instruments": [
+          "sub pulse",
+          "perc ticks"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "build_riser_only",
+      "category": "Build",
+      "label": "Risers Only",
+      "sectionType": "Build",
+      "lanes": {
+        "energy": 50,
+        "density": 30,
+        "brightness": 65,
+        "vocalPresence": 20
+      },
+      "modifiers": [
+        "sweep up",
+        "air movement"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": [
+          "noise risers",
+          "filter sweeps"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "build_melodic_tease",
+      "category": "Build",
+      "label": "Melodic Tease",
+      "sectionType": "Pre-Chorus",
+      "lanes": {
+        "energy": 58,
+        "density": 45,
+        "brightness": 62,
+        "vocalPresence": 50
+      },
+      "modifiers": [
+        "hint of hook",
+        "melodic foreshadowing"
+      ],
+      "layerHints": {
+        "voices": [
+          "hook fragments"
+        ],
+        "instruments": [
+          "motif quietly introduced"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "build_slow_ramp",
+      "category": "Build",
+      "label": "Slow Burn Ramp",
+      "sectionType": "Build",
+      "lanes": {
+        "energy": 45,
+        "density": 35,
+        "brightness": 48,
+        "vocalPresence": 40
+      },
+      "modifiers": [
+        "gradual escalation",
+        "no obvious peak"
+      ],
+      "layerHints": {
+        "voices": [
+          "sustained notes"
+        ],
+        "instruments": [
+          "pads swelling"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "drop_wide_anthem",
+      "category": "Drop",
+      "label": "Wide Anthem Drop",
+      "sectionType": "Chorus",
+      "lanes": {
+        "energy": 90,
+        "density": 75,
+        "brightness": 80,
+        "vocalPresence": 85
+      },
+      "modifiers": [
+        "anthemic",
+        "wide stereo",
+        "emotional release"
+      ],
+      "layerHints": {
+        "voices": [
+          "lead dominant",
+          "wide harmonies"
+        ],
+        "instruments": [
+          "full drums",
+          "thick bass"
+        ]
+      },
+      "emphasis": "BIGGER"
+    },
+    {
+      "id": "drop_rhythmic",
+      "category": "Drop",
+      "label": "Rhythm-Led Drop",
+      "sectionType": "Drop",
+      "lanes": {
+        "energy": 88,
+        "density": 70,
+        "brightness": 65,
+        "vocalPresence": 25
+      },
+      "modifiers": [
+        "groove focused",
+        "physical impact"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": [
+          "drums dominant",
+          "bass punch"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "drop_vocal_hook",
+      "category": "Drop",
+      "label": "Vocal Hook Drop",
+      "sectionType": "Chorus",
+      "lanes": {
+        "energy": 85,
+        "density": 65,
+        "brightness": 75,
+        "vocalPresence": 90
+      },
+      "modifiers": [
+        "hook first",
+        "singalong"
+      ],
+      "layerHints": {
+        "voices": [
+          "stacked lead"
+        ],
+        "instruments": [
+          "supportive groove"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "drop_dark_hit",
+      "category": "Drop",
+      "label": "Dark Impact Drop",
+      "sectionType": "Drop",
+      "lanes": {
+        "energy": 82,
+        "density": 78,
+        "brightness": 45,
+        "vocalPresence": 30
+      },
+      "modifiers": [
+        "dark",
+        "heavy",
+        "menacing"
+      ],
+      "layerHints": {
+        "voices": [
+          "shouts"
+        ],
+        "instruments": [
+          "distorted bass",
+          "industrial drums"
+        ]
+      },
+      "emphasis": "HARD"
+    },
+    {
+      "id": "drop_clean_release",
+      "category": "Drop",
+      "label": "Clean Emotional Release",
+      "sectionType": "Chorus",
+      "lanes": {
+        "energy": 80,
+        "density": 60,
+        "brightness": 78,
+        "vocalPresence": 75
+      },
+      "modifiers": [
+        "open",
+        "uplifting"
+      ],
+      "layerHints": {
+        "voices": [
+          "clear lead"
+        ],
+        "instruments": [
+          "balanced mix"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "break_breath_hold",
+      "category": "Break",
+      "label": "Breath-Hold Break",
+      "sectionType": "Break",
+      "lanes": {
+        "energy": 20,
+        "density": 15,
+        "brightness": 30,
+        "vocalPresence": 10
+      },
+      "modifiers": [
+        "near silence",
+        "suspension"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": [
+          "ambient tails"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "break_emotional_strip",
+      "category": "Break",
+      "label": "Emotional Strip-Back",
+      "sectionType": "Bridge",
+      "lanes": {
+        "energy": 30,
+        "density": 20,
+        "brightness": 35,
+        "vocalPresence": 70
+      },
+      "modifiers": [
+        "vulnerable",
+        "exposed"
+      ],
+      "layerHints": {
+        "voices": [
+          "solo lead"
+        ],
+        "instruments": [
+          "single harmony instrument"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "break_silence_hit",
+      "category": "Break",
+      "label": "Silence \u2192 Hit",
+      "sectionType": "Break",
+      "lanes": {
+        "energy": 10,
+        "density": 5,
+        "brightness": 20,
+        "vocalPresence": 0
+      },
+      "modifiers": [
+        "dramatic pause"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": []
+      },
+      "emphasis": "STOP"
+    },
+    {
+      "id": "break_cinematic_reset",
+      "category": "Break",
+      "label": "Cinematic Reset",
+      "sectionType": "Bridge",
+      "lanes": {
+        "energy": 25,
+        "density": 30,
+        "brightness": 40,
+        "vocalPresence": 20
+      },
+      "modifiers": [
+        "recontextualize theme"
+      ],
+      "layerHints": {
+        "voices": [
+          "soft choir"
+        ],
+        "instruments": [
+          "strings",
+          "pads"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "break_tension_hold",
+      "category": "Break",
+      "label": "Tension Hold",
+      "sectionType": "Break",
+      "lanes": {
+        "energy": 35,
+        "density": 25,
+        "brightness": 45,
+        "vocalPresence": 15
+      },
+      "modifiers": [
+        "sustained suspense"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": [
+          "drones",
+          "sub pressure"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "var_second_chorus_upgrade",
+      "category": "Variation",
+      "label": "Second Chorus Upgrade",
+      "sectionType": "Chorus",
+      "lanes": {
+        "energy": 95,
+        "density": 85,
+        "brightness": 85,
+        "vocalPresence": 90
+      },
+      "modifiers": [
+        "same hook",
+        "more power"
+      ],
+      "layerHints": {
+        "voices": [
+          "extra harmonies"
+        ],
+        "instruments": [
+          "added layers"
+        ]
+      },
+      "emphasis": "BIGGER"
+    },
+    {
+      "id": "var_motif_shift",
+      "category": "Variation",
+      "label": "Motif Recontextualization",
+      "sectionType": "Verse",
+      "lanes": {
+        "energy": 45,
+        "density": 40,
+        "brightness": 50,
+        "vocalPresence": 55
+      },
+      "modifiers": [
+        "familiar but different"
+      ],
+      "layerHints": {
+        "voices": [
+          "alternate phrasing"
+        ],
+        "instruments": [
+          "new texture"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "var_half_time",
+      "category": "Variation",
+      "label": "Half-Time Switch",
+      "sectionType": "Verse",
+      "lanes": {
+        "energy": 50,
+        "density": 35,
+        "brightness": 45,
+        "vocalPresence": 50
+      },
+      "modifiers": [
+        "half-time feel"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": [
+          "half-time drums"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "var_call_response",
+      "category": "Variation",
+      "label": "Call & Response",
+      "sectionType": "Chorus",
+      "lanes": {
+        "energy": 70,
+        "density": 65,
+        "brightness": 70,
+        "vocalPresence": 80
+      },
+      "modifiers": [
+        "interaction"
+      ],
+      "layerHints": {
+        "voices": [
+          "lead + backing answers"
+        ],
+        "instruments": []
+      },
+      "emphasis": null
+    },
+    {
+      "id": "var_texture_swap",
+      "category": "Variation",
+      "label": "Texture Swap",
+      "sectionType": "Verse",
+      "lanes": {
+        "energy": 40,
+        "density": 45,
+        "brightness": 55,
+        "vocalPresence": 50
+      },
+      "modifiers": [
+        "same structure",
+        "new palette"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": [
+          "alternate instrument set"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "outro_haunting",
+      "category": "Outro",
+      "label": "Haunting Afterglow",
+      "sectionType": "Outro",
+      "lanes": {
+        "energy": 25,
+        "density": 20,
+        "brightness": 35,
+        "vocalPresence": 40
+      },
+      "modifiers": [
+        "lingering emotion"
+      ],
+      "layerHints": {
+        "voices": [
+          "echoed fragments"
+        ],
+        "instruments": [
+          "soft pads"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "outro_hard_stop",
+      "category": "Outro",
+      "label": "Hard Stop",
+      "sectionType": "Outro",
+      "lanes": {
+        "energy": 40,
+        "density": 50,
+        "brightness": 50,
+        "vocalPresence": 30
+      },
+      "modifiers": [
+        "decisive ending"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": [
+          "final hit"
+        ]
+      },
+      "emphasis": "STOP"
+    },
+    {
+      "id": "outro_fade_classic",
+      "category": "Outro",
+      "label": "Classic Fade",
+      "sectionType": "Outro",
+      "lanes": {
+        "energy": 30,
+        "density": 25,
+        "brightness": 45,
+        "vocalPresence": 35
+      },
+      "modifiers": [
+        "gradual fade"
+      ],
+      "layerHints": {
+        "voices": [
+          "last hook echoes"
+        ],
+        "instruments": [
+          "tail reverb"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "outro_reflective",
+      "category": "Outro",
+      "label": "Reflective Close",
+      "sectionType": "Outro",
+      "lanes": {
+        "energy": 20,
+        "density": 15,
+        "brightness": 30,
+        "vocalPresence": 50
+      },
+      "modifiers": [
+        "introspective"
+      ],
+      "layerHints": {
+        "voices": [
+          "soft lead"
+        ],
+        "instruments": [
+          "piano/pad"
+        ]
+      },
+      "emphasis": null
+    },
+    {
+      "id": "outro_cinematic_tail",
+      "category": "Outro",
+      "label": "Cinematic Tail",
+      "sectionType": "Outro",
+      "lanes": {
+        "energy": 35,
+        "density": 30,
+        "brightness": 40,
+        "vocalPresence": 20
+      },
+      "modifiers": [
+        "long resonance"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": [
+          "orchestral tail"
+        ]
+      },
+      "emphasis": null
+    }
+  ]
+}

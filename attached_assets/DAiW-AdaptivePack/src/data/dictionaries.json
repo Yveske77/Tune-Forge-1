@@ -1,0 +1,719 @@
+{
+  "genres": [
+    "Pop",
+    "Electropop",
+    "Synthpop",
+    "Dream Pop",
+    "Indie Pop",
+    "Art Pop",
+    "Hyperpop",
+    "K-Pop",
+    "J-Pop",
+    "City Pop",
+    "Rock",
+    "Alternative Rock",
+    "Indie Rock",
+    "Post-Rock",
+    "Punk Rock",
+    "Pop Punk",
+    "Hard Rock",
+    "Classic Rock",
+    "Garage Rock",
+    "Shoegaze",
+    "Metal",
+    "Heavy Metal",
+    "Thrash Metal",
+    "Death Metal",
+    "Black Metal",
+    "Metalcore",
+    "Djent",
+    "Nu Metal",
+    "Symphonic Metal",
+    "Prog Metal",
+    "Hip-Hop",
+    "Rap",
+    "Trap",
+    "Drill",
+    "Boom Bap",
+    "Cloud Rap",
+    "Lo-Fi Hip-Hop",
+    "G-Funk",
+    "UK Rap",
+    "Conscious Rap",
+    "R&B",
+    "Neo-Soul",
+    "Soul",
+    "Funk",
+    "Gospel",
+    "Motown",
+    "Disco",
+    "Contemporary R&B",
+    "Alt R&B",
+    "Quiet Storm",
+    "Electronic",
+    "EDM",
+    "House",
+    "Deep House",
+    "Tech House",
+    "Progressive House",
+    "Trance",
+    "Psytrance",
+    "Dubstep",
+    "Drum & Bass",
+    "Breakbeat",
+    "UK Garage",
+    "Jungle",
+    "Electro",
+    "IDM",
+    "Glitch",
+    "Ambient",
+    "Downtempo",
+    "Chillout",
+    "Synthwave",
+    "Lo-Fi",
+    "Chillwave",
+    "Vaporwave",
+    "Trip-Hop",
+    "Future Bass",
+    "Moombahton",
+    "Hardstyle",
+    "Techno",
+    "Minimal Techno",
+    "Industrial Techno",
+    "Afro",
+    "Afrobeats",
+    "Amapiano",
+    "Afro House",
+    "Highlife",
+    "Kuduro",
+    "Soukous",
+    "Gqom",
+    "Dancehall",
+    "Reggae",
+    "Latin",
+    "Reggaeton",
+    "Latin Pop",
+    "Salsa",
+    "Bachata",
+    "Merengue",
+    "Cumbia",
+    "Bossa Nova",
+    "Samba",
+    "Latin Jazz",
+    "Country",
+    "Contemporary Country",
+    "Outlaw Country",
+    "Bluegrass",
+    "Americana",
+    "Folk",
+    "Indie Folk",
+    "Singer-Songwriter",
+    "Celtic",
+    "Sea Shanty",
+    "Jazz",
+    "Bebop",
+    "Swing",
+    "Cool Jazz",
+    "Fusion",
+    "Smooth Jazz",
+    "Nu Jazz",
+    "Bossa Jazz",
+    "Hard Bop",
+    "Free Jazz",
+    "Blues",
+    "Delta Blues",
+    "Chicago Blues",
+    "Soul Blues",
+    "Blues Rock",
+    "Gospel Blues",
+    "Piedmont Blues",
+    "Boogie-Woogie",
+    "Slow Blues",
+    "Jump Blues",
+    "Classical",
+    "Romantic Classical",
+    "Baroque",
+    "Modern Classical",
+    "Minimalism",
+    "Orchestral",
+    "Chamber",
+    "Choral",
+    "Opera",
+    "Film Score",
+    "Cinematic",
+    "Epic Trailer",
+    "Dark Cinematic",
+    "Ambient Score",
+    "Neo-Classical",
+    "Game OST",
+    "Lo-fi Score",
+    "Orchestral Hybrid",
+    "Soundscape",
+    "Drone",
+    "World",
+    "Middle Eastern",
+    "Indian",
+    "Bollywood",
+    "Qawwali",
+    "Arabic Pop",
+    "Ra\u00ef",
+    "Turkish Pop",
+    "Klezmer",
+    "Nordic Folk",
+    "Experimental",
+    "Noise",
+    "Avant-Garde",
+    "Microtonal",
+    "Generative",
+    "Field Recording",
+    "Musique Concr\u00e8te",
+    "Vocal Experiment",
+    "Glitch Pop",
+    "Deconstructed Club",
+    "Romantic",
+    "Sensual",
+    "Melancholic",
+    "Uplifting",
+    "Aggressive",
+    "Playful",
+    "Mysterious",
+    "Spiritual",
+    "Nostalgic",
+    "Futuristic"
+  ],
+  "moods": [
+    "calm",
+    "atmospheric",
+    "moody",
+    "brooding",
+    "uplifting",
+    "driving",
+    "anthemic",
+    "explosive",
+    "intimate",
+    "dreamy",
+    "dark",
+    "bright",
+    "euphoric",
+    "melancholic",
+    "nostalgic",
+    "romantic",
+    "sensual",
+    "angry",
+    "playful",
+    "mysterious",
+    "epic",
+    "cinematic",
+    "minimal",
+    "lush",
+    "raw",
+    "polished",
+    "gritty",
+    "glossy",
+    "cold",
+    "warm",
+    "hypnotic",
+    "floaty",
+    "rising tension",
+    "release",
+    "build-up",
+    "drop",
+    "sparse",
+    "dense",
+    "punchy",
+    "soft",
+    "aggressive",
+    "gentle"
+  ],
+  "fx": [
+    {
+      "id": "plate_reverb",
+      "label": "Plate Reverb",
+      "tags": [
+        "plate reverb",
+        "shimmer plate"
+      ]
+    },
+    {
+      "id": "hall_reverb",
+      "label": "Hall Reverb",
+      "tags": [
+        "hall reverb",
+        "long hall"
+      ]
+    },
+    {
+      "id": "gated_reverb",
+      "label": "Gated Reverb",
+      "tags": [
+        "gated reverb"
+      ]
+    },
+    {
+      "id": "spring_reverb",
+      "label": "Spring Reverb",
+      "tags": [
+        "spring reverb"
+      ]
+    },
+    {
+      "id": "tape_delay",
+      "label": "Tape Delay",
+      "tags": [
+        "tape delay",
+        "analog delay"
+      ]
+    },
+    {
+      "id": "pingpong_delay",
+      "label": "Ping-Pong Delay",
+      "tags": [
+        "ping-pong delay"
+      ]
+    },
+    {
+      "id": "slapback",
+      "label": "Slapback Delay",
+      "tags": [
+        "slapback delay"
+      ]
+    },
+    {
+      "id": "sidechain_pump",
+      "label": "Sidechain Pump",
+      "tags": [
+        "sidechain pump",
+        "ducking"
+      ]
+    },
+    {
+      "id": "tape_saturation",
+      "label": "Tape Saturation",
+      "tags": [
+        "tape saturation",
+        "warm saturation"
+      ]
+    },
+    {
+      "id": "tube_drive",
+      "label": "Tube Drive",
+      "tags": [
+        "tube drive",
+        "harmonic drive"
+      ]
+    },
+    {
+      "id": "vocal_doubler",
+      "label": "Vocal Doubler",
+      "tags": [
+        "vocal doubler",
+        "double-tracked vocals"
+      ]
+    },
+    {
+      "id": "chorus_fx",
+      "label": "Chorus FX",
+      "tags": [
+        "chorus effect",
+        "widening chorus"
+      ]
+    },
+    {
+      "id": "flanger",
+      "label": "Flanger",
+      "tags": [
+        "flanger"
+      ]
+    },
+    {
+      "id": "phaser",
+      "label": "Phaser",
+      "tags": [
+        "phaser"
+      ]
+    },
+    {
+      "id": "autotune",
+      "label": "Auto-Tune",
+      "tags": [
+        "autotune",
+        "tuned vocal"
+      ]
+    },
+    {
+      "id": "vocoder",
+      "label": "Vocoder",
+      "tags": [
+        "vocoder"
+      ]
+    },
+    {
+      "id": "vinyl_noise",
+      "label": "Vinyl Noise",
+      "tags": [
+        "vinyl crackle",
+        "lo-fi noise"
+      ]
+    },
+    {
+      "id": "glitch",
+      "label": "Glitch",
+      "tags": [
+        "glitch edits",
+        "stutter cuts"
+      ]
+    },
+    {
+      "id": "bitcrush",
+      "label": "Bitcrush",
+      "tags": [
+        "bitcrush",
+        "downsampled"
+      ]
+    },
+    {
+      "id": "reverse_fx",
+      "label": "Reverse FX",
+      "tags": [
+        "reverse reverb",
+        "reverse swells"
+      ]
+    },
+    {
+      "id": "telephone",
+      "label": "Telephone Filter",
+      "tags": [
+        "telephone filter",
+        "bandpass vocal"
+      ]
+    },
+    {
+      "id": "distortion",
+      "label": "Distortion",
+      "tags": [
+        "distorted",
+        "overdriven"
+      ]
+    }
+  ],
+  "vocalTones": [
+    "airy",
+    "breathy",
+    "whispered",
+    "gritty",
+    "raspy",
+    "warm",
+    "intimate",
+    "powerful",
+    "soft",
+    "spoken",
+    "falsetto",
+    "nasal",
+    "velvet",
+    "hoarse",
+    "growled",
+    "clean",
+    "robotic",
+    "choir-like"
+  ],
+  "mixTags": [
+    "tight low end",
+    "clean vocals",
+    "controlled brightness",
+    "wide stereo",
+    "punchy drums",
+    "club-ready",
+    "radio compressed",
+    "lo-fi cassette",
+    "warm analog",
+    "crystal clear",
+    "mono vintage",
+    "huge reverb space",
+    "dry upfront vocal"
+  ],
+  "emphasis": [
+    "*EXPLOSIVE*",
+    "LOUD",
+    "*INTIMATE*",
+    "*SOFT*",
+    "*HUGE DROP*",
+    "*WHISPER*",
+    "*FULL THROTTLE*",
+    "*BREAKDOWN*",
+    "*FINAL CHORUS*"
+  ],
+  "instruments": [
+    "kick",
+    "snare",
+    "clap",
+    "hi-hats",
+    "perc",
+    "808 bass",
+    "electric bass",
+    "sub bass",
+    "acoustic guitar",
+    "electric guitar",
+    "piano",
+    "rhodes",
+    "synth pad",
+    "synth lead",
+    "arp synth",
+    "strings",
+    "brass",
+    "flute",
+    "sax",
+    "trumpet",
+    "violin",
+    "cello",
+    "choir",
+    "plucked strings",
+    "marimba",
+    "bells",
+    "fx risers",
+    "fx impacts",
+    "vinyl noise",
+    "field ambience"
+  ],
+  "voices": [
+    "adult male baritone",
+    "adult male tenor",
+    "adult female alto",
+    "adult female soprano",
+    "duet (M/F)",
+    "choir (mixed)",
+    "rap vocal",
+    "spoken word",
+    "whisper vocal",
+    "narrator"
+  ],
+  "mixPositions": [
+    "front",
+    "center",
+    "back",
+    "wide",
+    "mono"
+  ],
+  "genreSuggestions": {
+    "Deep House": {
+      "instruments": [
+        "kick",
+        "clap",
+        "hi-hats",
+        "sub bass",
+        "synth pad",
+        "synth lead"
+      ],
+      "fx": [
+        "sidechain pump",
+        "plate reverb"
+      ],
+      "mix": [
+        "club-ready",
+        "tight low end",
+        "wide stereo"
+      ]
+    },
+    "Lo-Fi": {
+      "instruments": [
+        "kick",
+        "snare",
+        "hi-hats",
+        "electric bass",
+        "rhodes",
+        "vinyl crackle",
+        "field ambience"
+      ],
+      "fx": [
+        "tape saturation",
+        "vinyl crackle"
+      ],
+      "mix": [
+        "lo-fi cassette",
+        "warm analog"
+      ]
+    },
+    "Cinematic": {
+      "instruments": [
+        "strings",
+        "brass",
+        "choir",
+        "piano",
+        "fx risers",
+        "fx impacts"
+      ],
+      "fx": [
+        "hall reverb"
+      ],
+      "mix": [
+        "crystal clear",
+        "controlled brightness"
+      ]
+    },
+    "Trap": {
+      "instruments": [
+        "kick",
+        "snare",
+        "hi-hats",
+        "808 bass",
+        "synth lead",
+        "fx impacts"
+      ],
+      "fx": [
+        "distorted"
+      ],
+      "mix": [
+        "punchy drums",
+        "tight low end"
+      ]
+    }
+  },
+  "genreTaxonomy": {
+    "Deep House": {
+      "subgenres": [
+        "Vocal Deep House",
+        "Melodic Deep House",
+        "Piano House",
+        "Organic House",
+        "Afro Deep House"
+      ],
+      "microtags": [
+        "offbeat bass",
+        "four-on-the-floor",
+        "shuffled hats",
+        "warm pads",
+        "sidechain pump",
+        "dusty percussion",
+        "late-night vibe",
+        "sunrise build",
+        "silky topline",
+        "minor-key groove"
+      ]
+    },
+    "Techno": {
+      "subgenres": [
+        "Minimal Techno",
+        "Industrial Techno",
+        "Melodic Techno",
+        "Hard Techno",
+        "Dub Techno"
+      ],
+      "microtags": [
+        "rolling kick",
+        "hypnotic loop",
+        "warehouse reverb",
+        "rumble bass",
+        "staccato synth",
+        "polyrhythmic perc",
+        "acid line",
+        "filtered noise sweeps",
+        "tension risers",
+        "dry punch"
+      ]
+    },
+    "Trap": {
+      "subgenres": [
+        "Melodic Trap",
+        "Dark Trap",
+        "Cloud Trap",
+        "Rage",
+        "Atlanta Trap"
+      ],
+      "microtags": [
+        "808 slides",
+        "triplet hats",
+        "snare rolls",
+        "glossy synth lead",
+        "pitchy vocal chops",
+        "hard clip",
+        "half-time feel",
+        "dark bells",
+        "wide pads",
+        "minimal hook space"
+      ]
+    },
+    "Lo-Fi": {
+      "subgenres": [
+        "Lo-Fi Hip-Hop",
+        "Lo-Fi Jazzhop",
+        "Lo-Fi Chill",
+        "Lo-Fi Boom Bap",
+        "Lo-Fi Ambient"
+      ],
+      "microtags": [
+        "vinyl crackle",
+        "tape wobble",
+        "dusty drums",
+        "soft chords",
+        "jazzy voicings",
+        "room ambience",
+        "humanized swing",
+        "lowpassed mix",
+        "late-night study",
+        "gentle sidechain"
+      ]
+    },
+    "Cinematic": {
+      "subgenres": [
+        "Epic Trailer",
+        "Dark Cinematic",
+        "Neo-Classical",
+        "Orchestral Hybrid",
+        "Ambient Score"
+      ],
+      "microtags": [
+        "riser swells",
+        "braams",
+        "string ostinato",
+        "huge hall",
+        "sub impacts",
+        "choir stabs",
+        "slow burn tension",
+        "heroic release",
+        "quiet-to-loud arc",
+        "wide orchestral imaging"
+      ]
+    },
+    "Pop": {
+      "subgenres": [
+        "Electropop",
+        "Indie Pop",
+        "Dance Pop",
+        "Synthpop",
+        "Alt Pop"
+      ],
+      "microtags": [
+        "hook-first chorus",
+        "tight top-end",
+        "modern drums",
+        "stacked harmonies",
+        "bright synths",
+        "punchy bass",
+        "radio compressed",
+        "pre-chorus lift",
+        "drop chorus",
+        "ear-candy fills"
+      ]
+    },
+    "Hip-Hop": {
+      "subgenres": [
+        "Boom Bap",
+        "Cloud Rap",
+        "Drill",
+        "Conscious Rap",
+        "G-Funk"
+      ],
+      "microtags": [
+        "head-nod groove",
+        "sample chops",
+        "swing drums",
+        "808 glide",
+        "gritty textures",
+        "dry vocal upfront",
+        "call-and-response adlibs",
+        "vinyl sample vibe",
+        "hard snare",
+        "spacey pads"
+      ]
+    }
+  }
+}

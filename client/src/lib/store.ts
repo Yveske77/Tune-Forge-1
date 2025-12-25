@@ -1,182 +1,422 @@
 import { create } from 'zustand';
 
-export type LaneType = 'energy' | 'density' | 'brightness' | 'vocals';
+// Types
+export type LaneType = 'energy' | 'density' | 'brightness' | 'vocalPresence';
 
-export interface Instrument {
+export interface LayerItem {
+  name: string;
+  level: number;
+  position: 'front' | 'center' | 'back' | 'wide' | 'mono';
+}
+
+export interface LayerGroup {
   id: string;
   name: string;
-  category: 'drums' | 'bass' | 'chord' | 'lead' | 'vocal' | 'fx';
-  role: string;
+  items: LayerItem[];
 }
 
 export interface Section {
   id: string;
-  name: string;
-  length: number; // in bars (approx)
-  lanes: Record<LaneType, number>; // 0-100 value
-  activeInstruments: string[]; // IDs of active instruments
+  type: string;
+  label: string;
+  content: string;
+  modifiers: string[];
+  emphasis: string[];
+  tension: number;
+  lanes?: Record<LaneType, number>;
 }
 
-export interface TrackState {
-  sections: Section[];
-  instruments: Instrument[];
+export interface Meta {
+  target: 'suno' | 'udio' | 'generic';
+  modelVersion: string;
+  title: string;
+  language: string;
+  voiceType: string;
+}
+
+export interface Architecture {
+  tempoBpm: number;
+  key: string;
+  timeSignature: string;
+  genreTags: string[];
+  subgenre?: string;
+  microtags?: string[];
+}
+
+export interface Nuance {
+  mix: string[];
+  fx: string[];
+  vocalTone: string[];
+}
+
+export interface Lanes {
+  energy: number;
+  density: number;
+  brightness: number;
+  vocalPresence: number;
+}
+
+export interface Layers {
+  instruments: LayerGroup[];
+  voices: LayerGroup[];
+}
+
+export interface PaintUI {
+  enabled: boolean;
+  mode: 'lane' | 'layer';
+  laneKey: LaneType;
+  kind: 'instruments' | 'voices';
+  groupId: string;
+  itemName: string;
+  snap: boolean;
+}
+
+export interface Document {
+  meta: Meta;
+  architecture: Architecture;
+  nuance: Nuance;
+  activeVariant: 'A' | 'B';
+  arrangementVariants: {
+    A: { name: string; enabled: boolean };
+    B: { name: string; enabled: boolean };
+  };
+  lanes: Lanes;
+  layers: Layers;
+  arrangementTracks: {
+    A: Section[];
+    B: Section[];
+  };
+  sectionLayerAutomation: Record<string, Record<string, Record<string, { level?: number; position?: string }>>>;
+  dynamicVars: Record<string, string>;
+  lyrics: {
+    mode: 'draft' | 'final';
+    text: string;
+  };
+  ui: {
+    paint: PaintUI;
+  };
 }
 
 interface AppState {
-  // Global
-  activeTrack: 'A' | 'B';
+  // Project management
   currentProjectId: number | null;
   currentProjectName: string;
-  tracks: {
-    A: TrackState;
-    B: TrackState;
-  };
-  genre: {
-    main: string;
-    sub: string;
-    era: string;
-    region: string;
-  };
+  
+  // Document
+  doc: Document;
   
   // Actions
-  setActiveTrack: (track: 'A' | 'B') => void;
   setCurrentProject: (id: number | null, name: string) => void;
-  updateSection: (track: 'A' | 'B', sectionId: string, updates: Partial<Section>) => void;
-  updateLane: (track: 'A' | 'B', sectionId: string, lane: LaneType, value: number) => void;
-  addSection: (track: 'A' | 'B') => void;
-  removeSection: (track: 'A' | 'B', sectionId: string) => void;
-  setGenre: (updates: Partial<AppState['genre']>) => void;
-  toggleInstrument: (track: 'A' | 'B', sectionId: string, instrumentId: string) => void;
-  loadProject: (tracks: { A: TrackState; B: TrackState }, genre: AppState['genre']) => void;
+  setDoc: (updater: ((doc: Document) => Document) | Document) => void;
+  setMeta: (patch: Partial<Meta>) => void;
+  setArchitecture: (patch: Partial<Architecture>) => void;
+  setNuance: (patch: Partial<Nuance>) => void;
+  setLanes: (patch: Partial<Lanes>) => void;
+  setLyrics: (text: string) => void;
+  
+  // Variant management
+  setActiveVariant: (v: 'A' | 'B') => void;
+  toggleVariantEnabled: (v: 'A' | 'B') => void;
+  cloneVariantFromA: () => void;
+  
+  // Section management
+  addSection: (section: Section) => void;
+  updateSection: (id: string, patch: Partial<Section>) => void;
+  removeSection: (id: string) => void;
+  reorderSections: (orderedIds: string[]) => void;
+  setSectionLaneValue: (sectionId: string, laneKey: LaneType, value: number) => void;
+  
+  // Layer automation
+  setLayerAutomation: (sectionId: string, kind: 'instruments' | 'voices', groupId: string, itemName: string, patch: { level?: number; position?: string }) => void;
+  
+  // Paint UI
+  setPaintUI: (patch: Partial<PaintUI>) => void;
+  
+  // Dynamic vars
+  setDynamicVar: (key: string, value: string | null) => void;
+  
+  // Layer management
+  addLayerGroup: (kind: 'instruments' | 'voices', group: LayerGroup) => void;
+  updateLayerItem: (kind: 'instruments' | 'voices', groupId: string, itemIndex: number, patch: Partial<LayerItem>) => void;
+  
+  // Project persistence
+  loadDocument: (doc: Document) => void;
   resetToDefault: () => void;
+  getActiveArrangement: () => Section[];
 }
 
-const DEFAULT_SECTIONS: Section[] = [
-  { id: '1', name: 'Intro', length: 4, lanes: { energy: 20, density: 30, brightness: 40, vocals: 0 }, activeInstruments: ['pad-1'] },
-  { id: '2', name: 'Verse 1', length: 8, lanes: { energy: 40, density: 40, brightness: 50, vocals: 80 }, activeInstruments: ['kick-1', 'bass-1', 'voc-1'] },
-  { id: '3', name: 'Pre-Chorus', length: 4, lanes: { energy: 60, density: 50, brightness: 70, vocals: 70 }, activeInstruments: ['kick-1', 'bass-1', 'voc-1', 'syn-1'] },
-  { id: '4', name: 'Chorus', length: 8, lanes: { energy: 90, density: 80, brightness: 90, vocals: 100 }, activeInstruments: ['kick-1', 'snare-1', 'bass-1', 'voc-1', 'syn-1', 'pad-1'] },
-  { id: '5', name: 'Outro', length: 4, lanes: { energy: 30, density: 20, brightness: 40, vocals: 0 }, activeInstruments: ['pad-1'] },
-];
+function uid(prefix: string = 'id'): string {
+  return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
+}
 
-const DEFAULT_INSTRUMENTS: Instrument[] = [
-  { id: 'voc-1', name: 'Lead Vocal', category: 'vocal', role: 'Front, Dry' },
-  { id: 'kick-1', name: 'Kick Drum', category: 'drums', role: 'Punchy' },
-  { id: 'snare-1', name: 'Snare', category: 'drums', role: 'Tight' },
-  { id: 'bass-1', name: 'Sub Bass', category: 'bass', role: 'Center' },
-  { id: 'pad-1', name: 'Atmosphere', category: 'chord', role: 'Wide' },
-  { id: 'syn-1', name: 'Arp Synth', category: 'lead', role: 'Moving' },
-];
+function defaultDocument(): Document {
+  return {
+    meta: {
+      target: 'suno',
+      modelVersion: 'v5',
+      title: '',
+      language: 'English',
+      voiceType: 'Adult Male',
+    },
+    architecture: {
+      tempoBpm: 120,
+      key: 'C Minor',
+      timeSignature: '4/4',
+      genreTags: ['Electronic', 'Deep House'],
+      subgenre: 'Melodic Deep House',
+      microtags: ['sidechain pump', 'warm pads'],
+    },
+    nuance: {
+      mix: ['clean vocals', 'tight low end', 'wide stereo'],
+      fx: ['plate reverb', 'sidechain pump'],
+      vocalTone: ['intimate', 'warm'],
+    },
+    activeVariant: 'A',
+    arrangementVariants: {
+      A: { name: 'Main', enabled: true },
+      B: { name: 'Alt', enabled: false },
+    },
+    lanes: {
+      energy: 60,
+      density: 55,
+      brightness: 50,
+      vocalPresence: 65,
+    },
+    layers: {
+      instruments: [
+        { id: uid('grp'), name: 'Drums', items: [{ name: 'kick', level: 80, position: 'center' }, { name: 'hi-hats', level: 55, position: 'wide' }] },
+        { id: uid('grp'), name: 'Bass', items: [{ name: 'sub bass', level: 75, position: 'center' }] },
+        { id: uid('grp'), name: 'Synths', items: [{ name: 'synth pad', level: 60, position: 'wide' }, { name: 'arp synth', level: 50, position: 'center' }] },
+      ],
+      voices: [
+        { id: uid('vgrp'), name: 'Lead Vocal', items: [{ name: 'adult male baritone', level: 75, position: 'front' }] },
+      ],
+    },
+    arrangementTracks: {
+      A: [
+        { id: uid('sec'), type: 'Intro', label: 'Intro', content: 'pad arpeggio, soft textures', modifiers: ['calm', 'atmospheric'], emphasis: [], tension: 20 },
+        { id: uid('sec'), type: 'Verse', label: 'Verse 1', content: 'minimal groove, intimate vocal', modifiers: ['moody', 'intimate'], emphasis: [], tension: 45 },
+        { id: uid('sec'), type: 'Pre-Chorus', label: 'Pre-Chorus', content: 'rising tension, filtered builds', modifiers: ['rising tension', 'bright'], emphasis: [], tension: 65 },
+        { id: uid('sec'), type: 'Chorus', label: 'Chorus', content: 'full energy, wide synths, anthemic vocal', modifiers: ['anthemic', 'explosive'], emphasis: ['*EXPLOSIVE*'], tension: 90 },
+        { id: uid('sec'), type: 'Outro', label: 'Outro', content: 'fade out, echoed vocal', modifiers: ['atmospheric', 'calm'], emphasis: [], tension: 25 },
+      ],
+      B: [],
+    },
+    sectionLayerAutomation: {},
+    dynamicVars: {},
+    lyrics: {
+      mode: 'draft',
+      text: '',
+    },
+    ui: {
+      paint: {
+        enabled: false,
+        mode: 'lane',
+        laneKey: 'energy',
+        kind: 'instruments',
+        groupId: '',
+        itemName: '',
+        snap: true,
+      },
+    },
+  };
+}
 
-const DEFAULT_GENRE = {
-  main: 'Electronic',
-  sub: 'Deep House',
-  era: '2016',
-  region: 'UK'
-};
-
-const getDefaultState = () => ({
-  activeTrack: 'A' as const,
+export const useStore = create<AppState>((set, get) => ({
   currentProjectId: null,
   currentProjectName: 'Untitled Project',
-  tracks: {
-    A: {
-      sections: DEFAULT_SECTIONS,
-      instruments: DEFAULT_INSTRUMENTS,
-    },
-    B: {
-      sections: JSON.parse(JSON.stringify(DEFAULT_SECTIONS)),
-      instruments: DEFAULT_INSTRUMENTS,
-    }
-  },
-  genre: DEFAULT_GENRE,
-});
+  doc: defaultDocument(),
 
-export const useStore = create<AppState>((set) => ({
-  ...getDefaultState(),
-
-  setActiveTrack: (track) => set({ activeTrack: track }),
-  
   setCurrentProject: (id, name) => set({ currentProjectId: id, currentProjectName: name }),
 
-  updateSection: (track, sectionId, updates) => set((state) => ({
-    tracks: {
-      ...state.tracks,
-      [track]: {
-        ...state.tracks[track],
-        sections: state.tracks[track].sections.map(s => 
-          s.id === sectionId ? { ...s, ...updates } : s
-        )
-      }
-    }
+  setDoc: (updater) => set((s) => ({
+    doc: typeof updater === 'function' ? updater(s.doc) : updater,
   })),
 
-  updateLane: (track, sectionId, lane, value) => set((state) => ({
-    tracks: {
-      ...state.tracks,
-      [track]: {
-        ...state.tracks[track],
-        sections: state.tracks[track].sections.map(s => 
-          s.id === sectionId ? { 
-            ...s, 
-            lanes: { ...s.lanes, [lane]: value } 
-          } : s
-        )
-      }
-    }
+  setMeta: (patch) => set((s) => ({
+    doc: { ...s.doc, meta: { ...s.doc.meta, ...patch } },
   })),
 
-  addSection: (track) => set((state) => {
-    const newId = Math.random().toString(36).substr(2, 9);
+  setArchitecture: (patch) => set((s) => ({
+    doc: {
+      ...s.doc,
+      architecture: {
+        ...s.doc.architecture,
+        ...patch,
+        genreTags: patch.genreTags ? Array.from(new Set(patch.genreTags)).slice(0, 3) : s.doc.architecture.genreTags,
+      },
+    },
+  })),
+
+  setNuance: (patch) => set((s) => ({
+    doc: { ...s.doc, nuance: { ...s.doc.nuance, ...patch } },
+  })),
+
+  setLanes: (patch) => set((s) => ({
+    doc: { ...s.doc, lanes: { ...s.doc.lanes, ...patch } },
+  })),
+
+  setLyrics: (text) => set((s) => ({
+    doc: { ...s.doc, lyrics: { ...s.doc.lyrics, text } },
+  })),
+
+  setActiveVariant: (v) => set((s) => ({
+    doc: { ...s.doc, activeVariant: v },
+  })),
+
+  toggleVariantEnabled: (v) => set((s) => ({
+    doc: {
+      ...s.doc,
+      arrangementVariants: {
+        ...s.doc.arrangementVariants,
+        [v]: { ...s.doc.arrangementVariants[v], enabled: !s.doc.arrangementVariants[v].enabled },
+      },
+    },
+  })),
+
+  cloneVariantFromA: () => set((s) => ({
+    doc: {
+      ...s.doc,
+      arrangementTracks: {
+        ...s.doc.arrangementTracks,
+        B: JSON.parse(JSON.stringify(s.doc.arrangementTracks.A)),
+      },
+    },
+  })),
+
+  addSection: (section) => set((s) => {
+    const v = s.doc.activeVariant;
     return {
-      tracks: {
-        ...state.tracks,
-        [track]: {
-          ...state.tracks[track],
-          sections: [...state.tracks[track].sections, {
-            id: newId,
-            name: 'New Section',
-            length: 4,
-            lanes: { energy: 50, density: 50, brightness: 50, vocals: 50 },
-            activeInstruments: []
-          }]
-        }
-      }
+      doc: {
+        ...s.doc,
+        arrangementTracks: {
+          ...s.doc.arrangementTracks,
+          [v]: [...s.doc.arrangementTracks[v], section],
+        },
+      },
     };
   }),
 
-  removeSection: (track, sectionId) => set((state) => ({
-    tracks: {
-      ...state.tracks,
-      [track]: {
-        ...state.tracks[track],
-        sections: state.tracks[track].sections.filter(s => s.id !== sectionId)
-      }
-    }
+  updateSection: (id, patch) => set((s) => {
+    const v = s.doc.activeVariant;
+    return {
+      doc: {
+        ...s.doc,
+        arrangementTracks: {
+          ...s.doc.arrangementTracks,
+          [v]: s.doc.arrangementTracks[v].map((sec) => (sec.id === id ? { ...sec, ...patch } : sec)),
+        },
+      },
+    };
+  }),
+
+  removeSection: (id) => set((s) => {
+    const v = s.doc.activeVariant;
+    return {
+      doc: {
+        ...s.doc,
+        arrangementTracks: {
+          ...s.doc.arrangementTracks,
+          [v]: s.doc.arrangementTracks[v].filter((sec) => sec.id !== id),
+        },
+      },
+    };
+  }),
+
+  reorderSections: (orderedIds) => set((s) => {
+    const v = s.doc.activeVariant;
+    const map = new Map(s.doc.arrangementTracks[v].map((sec) => [sec.id, sec]));
+    const reordered = orderedIds.map((id) => map.get(id)).filter(Boolean) as Section[];
+    return {
+      doc: {
+        ...s.doc,
+        arrangementTracks: {
+          ...s.doc.arrangementTracks,
+          [v]: reordered,
+        },
+      },
+    };
+  }),
+
+  setSectionLaneValue: (sectionId, laneKey, value) => set((s) => {
+    const v = s.doc.activeVariant;
+    return {
+      doc: {
+        ...s.doc,
+        arrangementTracks: {
+          ...s.doc.arrangementTracks,
+          [v]: s.doc.arrangementTracks[v].map((sec) => {
+            if (sec.id !== sectionId) return sec;
+            return { ...sec, lanes: { ...(sec.lanes || s.doc.lanes), [laneKey]: value } };
+          }),
+        },
+      },
+    };
+  }),
+
+  setLayerAutomation: (sectionId, kind, groupId, itemName, patch) => set((s) => {
+    const sla = { ...s.doc.sectionLayerAutomation };
+    const sec = { ...(sla[sectionId] || {}) };
+    const kk = { ...(sec[kind] || {}) };
+    const key = `${groupId}::${itemName}`;
+    kk[key] = { ...(kk[key] || {}), ...patch };
+    sec[kind] = kk;
+    sla[sectionId] = sec;
+    return { doc: { ...s.doc, sectionLayerAutomation: sla } };
+  }),
+
+  setPaintUI: (patch) => set((s) => ({
+    doc: { ...s.doc, ui: { ...s.doc.ui, paint: { ...s.doc.ui.paint, ...patch } } },
   })),
 
-  setGenre: (updates) => set((state) => ({ genre: { ...state.genre, ...updates } })),
+  setDynamicVar: (key, value) => set((s) => {
+    const dv = { ...s.doc.dynamicVars };
+    if (value === null || value === undefined || String(value).trim() === '') {
+      delete dv[key];
+    } else {
+      dv[key] = String(value);
+    }
+    return { doc: { ...s.doc, dynamicVars: dv } };
+  }),
 
-  toggleInstrument: (track, sectionId, instrumentId) => set((state) => ({
-    tracks: {
-      ...state.tracks,
-      [track]: {
-        ...state.tracks[track],
-        sections: state.tracks[track].sections.map(s => {
-          if (s.id !== sectionId) return s;
-          const isActive = s.activeInstruments.includes(instrumentId);
+  addLayerGroup: (kind, group) => set((s) => ({
+    doc: {
+      ...s.doc,
+      layers: {
+        ...s.doc.layers,
+        [kind]: [...s.doc.layers[kind], group],
+      },
+    },
+  })),
+
+  updateLayerItem: (kind, groupId, itemIndex, patch) => set((s) => ({
+    doc: {
+      ...s.doc,
+      layers: {
+        ...s.doc.layers,
+        [kind]: s.doc.layers[kind].map((g) => {
+          if (g.id !== groupId) return g;
           return {
-            ...s,
-            activeInstruments: isActive 
-              ? s.activeInstruments.filter(id => id !== instrumentId)
-              : [...s.activeInstruments, instrumentId]
+            ...g,
+            items: g.items.map((item, idx) => (idx === itemIndex ? { ...item, ...patch } : item)),
           };
-        })
-      }
-    }
+        }),
+      },
+    },
   })),
 
-  loadProject: (tracks, genre) => set({ tracks, genre }),
+  loadDocument: (doc) => set({ doc }),
 
-  resetToDefault: () => set(getDefaultState()),
+  resetToDefault: () => set({
+    currentProjectId: null,
+    currentProjectName: 'Untitled Project',
+    doc: defaultDocument(),
+  }),
+
+  getActiveArrangement: () => {
+    const s = get();
+    return s.doc.arrangementTracks[s.doc.activeVariant];
+  },
 }));
+
+export { uid };

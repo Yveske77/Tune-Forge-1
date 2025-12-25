@@ -1,0 +1,1081 @@
+{
+  "packId": "daiw-adaptive-blocks-v1",
+  "name": "DAiW Adaptive Blocks Pack",
+  "version": "1.0.0",
+  "blocks": [
+    {
+      "id": "ad_chorus_relative_lift",
+      "category": "Adaptive",
+      "label": "Adaptive Chorus \u2014 Relative Lift",
+      "sectionType": "Chorus",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "add",
+          "from": "prev.energy",
+          "value": 25,
+          "cap": [
+            0,
+            95
+          ]
+        },
+        "density": {
+          "op": "add",
+          "from": "prev.density",
+          "value": 20,
+          "cap": [
+            0,
+            95
+          ]
+        },
+        "brightness": {
+          "op": "add",
+          "from": "prev.brightness",
+          "value": 15,
+          "cap": [
+            0,
+            95
+          ]
+        },
+        "vocalPresence": {
+          "op": "max",
+          "from": "prev.vocalPresence",
+          "value": 80,
+          "cap": [
+            0,
+            100
+          ]
+        }
+      },
+      "modifiers": [
+        "dynamic lift",
+        "context-aware impact",
+        "hook first"
+      ],
+      "layerHints": {
+        "voices": [
+          "lead dominant",
+          "wide harmonies"
+        ],
+        "instruments": [
+          "full drums",
+          "thick bass"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_drop_relative_impact",
+      "category": "Adaptive",
+      "label": "Adaptive Drop \u2014 Relative Impact",
+      "sectionType": "Drop",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "add",
+          "from": "prev.energy",
+          "value": 30,
+          "cap": [
+            0,
+            98
+          ]
+        },
+        "density": {
+          "op": "add",
+          "from": "prev.density",
+          "value": 25,
+          "cap": [
+            0,
+            98
+          ]
+        },
+        "brightness": {
+          "op": "add",
+          "from": "prev.brightness",
+          "value": 8,
+          "cap": [
+            0,
+            95
+          ]
+        },
+        "vocalPresence": {
+          "op": "mul",
+          "from": "prev.vocalPresence",
+          "value": 0.45,
+          "cap": [
+            0,
+            85
+          ]
+        }
+      },
+      "modifiers": [
+        "rhythm-led",
+        "physical impact",
+        "dominant drums+bass"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": [
+          "drums dominant",
+          "bass punch",
+          "fx hits"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_prechorus_tension_ramp",
+      "category": "Adaptive",
+      "label": "Adaptive Pre-Chorus \u2014 Tension Ramp",
+      "sectionType": "Pre-Chorus",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "add",
+          "from": "prev.energy",
+          "value": 14,
+          "cap": [
+            0,
+            88
+          ]
+        },
+        "density": {
+          "op": "add",
+          "from": "prev.density",
+          "value": 10,
+          "cap": [
+            0,
+            85
+          ]
+        },
+        "brightness": {
+          "op": "add",
+          "from": "prev.brightness",
+          "value": 16,
+          "cap": [
+            0,
+            92
+          ]
+        },
+        "vocalPresence": {
+          "op": "add",
+          "from": "prev.vocalPresence",
+          "value": 6,
+          "cap": [
+            0,
+            85
+          ]
+        }
+      },
+      "modifiers": [
+        "rising tension",
+        "filtered groove",
+        "anticipation"
+      ],
+      "layerHints": {
+        "voices": [
+          "lead restrained",
+          "whisper adlibs"
+        ],
+        "instruments": [
+          "filtered drums",
+          "riser fx",
+          "sub pulse"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_break_context_reset",
+      "category": "Adaptive",
+      "label": "Adaptive Break \u2014 Context Reset",
+      "sectionType": "Break",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "sub",
+          "from": "prev.energy",
+          "value": 32,
+          "cap": [
+            5,
+            60
+          ]
+        },
+        "density": {
+          "op": "sub",
+          "from": "prev.density",
+          "value": 38,
+          "cap": [
+            5,
+            55
+          ]
+        },
+        "brightness": {
+          "op": "sub",
+          "from": "prev.brightness",
+          "value": 18,
+          "cap": [
+            8,
+            70
+          ]
+        },
+        "vocalPresence": {
+          "op": "mul",
+          "from": "prev.vocalPresence",
+          "value": 0.35,
+          "cap": [
+            0,
+            60
+          ]
+        }
+      },
+      "modifiers": [
+        "breath-hold",
+        "space",
+        "suspension"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": [
+          "tails",
+          "air"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_bridge_vulnerability",
+      "category": "Adaptive",
+      "label": "Adaptive Bridge \u2014 Vulnerability Window",
+      "sectionType": "Bridge",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "sub",
+          "from": "prev.energy",
+          "value": 22,
+          "cap": [
+            10,
+            70
+          ]
+        },
+        "density": {
+          "op": "sub",
+          "from": "prev.density",
+          "value": 30,
+          "cap": [
+            8,
+            65
+          ]
+        },
+        "brightness": {
+          "op": "sub",
+          "from": "prev.brightness",
+          "value": 10,
+          "cap": [
+            10,
+            75
+          ]
+        },
+        "vocalPresence": {
+          "op": "max",
+          "from": "prev.vocalPresence",
+          "value": 75,
+          "cap": [
+            0,
+            100
+          ]
+        }
+      },
+      "modifiers": [
+        "vulnerable",
+        "exposed",
+        "intimate lead"
+      ],
+      "layerHints": {
+        "voices": [
+          "solo lead close"
+        ],
+        "instruments": [
+          "single harmony instrument",
+          "minimal percussion"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_outro_afterglow",
+      "category": "Adaptive",
+      "label": "Adaptive Outro \u2014 Afterglow",
+      "sectionType": "Outro",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "mul",
+          "from": "prev.energy",
+          "value": 0.45,
+          "cap": [
+            5,
+            55
+          ]
+        },
+        "density": {
+          "op": "mul",
+          "from": "prev.density",
+          "value": 0.4,
+          "cap": [
+            5,
+            55
+          ]
+        },
+        "brightness": {
+          "op": "mul",
+          "from": "prev.brightness",
+          "value": 0.55,
+          "cap": [
+            8,
+            70
+          ]
+        },
+        "vocalPresence": {
+          "op": "mul",
+          "from": "prev.vocalPresence",
+          "value": 0.55,
+          "cap": [
+            0,
+            75
+          ]
+        }
+      },
+      "modifiers": [
+        "afterglow",
+        "lingering hook fragments",
+        "soft dissolve"
+      ],
+      "layerHints": {
+        "voices": [
+          "echo fragments"
+        ],
+        "instruments": [
+          "pads",
+          "reverb tails"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_intro_set_the_room",
+      "category": "Adaptive",
+      "label": "Adaptive Intro \u2014 Set the Room",
+      "sectionType": "Intro",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "set",
+          "value": 22,
+          "cap": [
+            0,
+            45
+          ]
+        },
+        "density": {
+          "op": "set",
+          "value": 18,
+          "cap": [
+            0,
+            40
+          ]
+        },
+        "brightness": {
+          "op": "set",
+          "value": 28,
+          "cap": [
+            0,
+            55
+          ]
+        },
+        "vocalPresence": {
+          "op": "set",
+          "value": 10,
+          "cap": [
+            0,
+            35
+          ]
+        }
+      },
+      "modifiers": [
+        "wide atmosphere",
+        "inviting",
+        "gentle pulse"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": [
+          "pads",
+          "subtle texture"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_second_chorus_auto_upgrade",
+      "category": "Adaptive",
+      "label": "Adaptive Chorus 2 \u2014 Auto Upgrade",
+      "sectionType": "Chorus",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "context_add",
+          "from": "prev.energy",
+          "value": 12,
+          "ifPrevType": "Chorus",
+          "else": 22,
+          "cap": [
+            0,
+            98
+          ]
+        },
+        "density": {
+          "op": "context_add",
+          "from": "prev.density",
+          "value": 12,
+          "ifPrevType": "Chorus",
+          "else": 18,
+          "cap": [
+            0,
+            98
+          ]
+        },
+        "brightness": {
+          "op": "add",
+          "from": "prev.brightness",
+          "value": 10,
+          "cap": [
+            0,
+            95
+          ]
+        },
+        "vocalPresence": {
+          "op": "max",
+          "from": "prev.vocalPresence",
+          "value": 88,
+          "cap": [
+            0,
+            100
+          ]
+        }
+      },
+      "modifiers": [
+        "same hook, more power",
+        "extra layers",
+        "bigger width"
+      ],
+      "layerHints": {
+        "voices": [
+          "extra harmonies"
+        ],
+        "instruments": [
+          "added synths",
+          "extra percussion"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_half_time_switch",
+      "category": "Adaptive",
+      "label": "Adaptive Verse \u2014 Half-Time Switch",
+      "sectionType": "Verse",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "sub",
+          "from": "prev.energy",
+          "value": 10,
+          "cap": [
+            15,
+            80
+          ]
+        },
+        "density": {
+          "op": "sub",
+          "from": "prev.density",
+          "value": 8,
+          "cap": [
+            15,
+            85
+          ]
+        },
+        "brightness": {
+          "op": "sub",
+          "from": "prev.brightness",
+          "value": 6,
+          "cap": [
+            10,
+            90
+          ]
+        },
+        "vocalPresence": {
+          "op": "add",
+          "from": "prev.vocalPresence",
+          "value": 6,
+          "cap": [
+            0,
+            95
+          ]
+        }
+      },
+      "modifiers": [
+        "half-time feel",
+        "heavier pocket",
+        "space between hits"
+      ],
+      "layerHints": {
+        "voices": [
+          "lead forward"
+        ],
+        "instruments": [
+          "half-time drums",
+          "sub emphasis"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_texture_swap",
+      "category": "Adaptive",
+      "label": "Adaptive Verse \u2014 Texture Swap",
+      "sectionType": "Verse",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "mul",
+          "from": "prev.energy",
+          "value": 0.92,
+          "cap": [
+            10,
+            90
+          ]
+        },
+        "density": {
+          "op": "mul",
+          "from": "prev.density",
+          "value": 0.95,
+          "cap": [
+            10,
+            90
+          ]
+        },
+        "brightness": {
+          "op": "add",
+          "from": "prev.brightness",
+          "value": 8,
+          "cap": [
+            10,
+            95
+          ]
+        },
+        "vocalPresence": {
+          "op": "mul",
+          "from": "prev.vocalPresence",
+          "value": 1.05,
+          "cap": [
+            0,
+            100
+          ]
+        }
+      },
+      "modifiers": [
+        "same structure, new palette",
+        "fresh timbre"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": [
+          "swap lead instrument",
+          "new texture layer"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_call_response",
+      "category": "Adaptive",
+      "label": "Adaptive Chorus \u2014 Call & Response",
+      "sectionType": "Chorus",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "add",
+          "from": "prev.energy",
+          "value": 18,
+          "cap": [
+            0,
+            92
+          ]
+        },
+        "density": {
+          "op": "add",
+          "from": "prev.density",
+          "value": 15,
+          "cap": [
+            0,
+            90
+          ]
+        },
+        "brightness": {
+          "op": "add",
+          "from": "prev.brightness",
+          "value": 12,
+          "cap": [
+            0,
+            92
+          ]
+        },
+        "vocalPresence": {
+          "op": "max",
+          "from": "prev.vocalPresence",
+          "value": 85,
+          "cap": [
+            0,
+            100
+          ]
+        }
+      },
+      "modifiers": [
+        "interaction",
+        "lead + backing answers",
+        "crowd energy"
+      ],
+      "layerHints": {
+        "voices": [
+          "lead call",
+          "backing response"
+        ],
+        "instruments": [
+          "tight drums",
+          "supporting harmony"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_dark_impact",
+      "category": "Adaptive",
+      "label": "Adaptive Drop \u2014 Dark Impact",
+      "sectionType": "Drop",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "add",
+          "from": "prev.energy",
+          "value": 22,
+          "cap": [
+            0,
+            95
+          ]
+        },
+        "density": {
+          "op": "add",
+          "from": "prev.density",
+          "value": 28,
+          "cap": [
+            0,
+            98
+          ]
+        },
+        "brightness": {
+          "op": "mul",
+          "from": "prev.brightness",
+          "value": 0.72,
+          "cap": [
+            5,
+            70
+          ]
+        },
+        "vocalPresence": {
+          "op": "mul",
+          "from": "prev.vocalPresence",
+          "value": 0.5,
+          "cap": [
+            0,
+            70
+          ]
+        }
+      },
+      "modifiers": [
+        "dark",
+        "heavy",
+        "low-end forward"
+      ],
+      "layerHints": {
+        "voices": [
+          "shout hits"
+        ],
+        "instruments": [
+          "distorted bass",
+          "industrial drums"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_cinematic_rise",
+      "category": "Adaptive",
+      "label": "Adaptive Build \u2014 Cinematic Rise",
+      "sectionType": "Build",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "add",
+          "from": "prev.energy",
+          "value": 16,
+          "cap": [
+            0,
+            90
+          ]
+        },
+        "density": {
+          "op": "add",
+          "from": "prev.density",
+          "value": 12,
+          "cap": [
+            0,
+            88
+          ]
+        },
+        "brightness": {
+          "op": "add",
+          "from": "prev.brightness",
+          "value": 10,
+          "cap": [
+            0,
+            90
+          ]
+        },
+        "vocalPresence": {
+          "op": "mul",
+          "from": "prev.vocalPresence",
+          "value": 0.85,
+          "cap": [
+            0,
+            90
+          ]
+        }
+      },
+      "modifiers": [
+        "slow swell",
+        "cinematic tension",
+        "inevitable lift"
+      ],
+      "layerHints": {
+        "voices": [
+          "distant choir optional"
+        ],
+        "instruments": [
+          "strings swell",
+          "riser fx",
+          "big drums tease"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_silence_to_hit",
+      "category": "Adaptive",
+      "label": "Adaptive Break \u2014 Silence \u2192 Hit",
+      "sectionType": "Break",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "set",
+          "value": 8,
+          "cap": [
+            0,
+            20
+          ]
+        },
+        "density": {
+          "op": "set",
+          "value": 5,
+          "cap": [
+            0,
+            15
+          ]
+        },
+        "brightness": {
+          "op": "set",
+          "value": 18,
+          "cap": [
+            0,
+            35
+          ]
+        },
+        "vocalPresence": {
+          "op": "set",
+          "value": 0,
+          "cap": [
+            0,
+            10
+          ]
+        }
+      },
+      "modifiers": [
+        "dramatic pause",
+        "hard contrast"
+      ],
+      "layerHints": {
+        "voices": [],
+        "instruments": []
+      },
+      "emphasis": "STOP"
+    },
+    {
+      "id": "ad_final_chorus_max",
+      "category": "Adaptive",
+      "label": "Adaptive Final Chorus \u2014 Max Release",
+      "sectionType": "Chorus",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "max",
+          "from": "prev.energy",
+          "value": 96,
+          "cap": [
+            0,
+            100
+          ]
+        },
+        "density": {
+          "op": "max",
+          "from": "prev.density",
+          "value": 92,
+          "cap": [
+            0,
+            100
+          ]
+        },
+        "brightness": {
+          "op": "max",
+          "from": "prev.brightness",
+          "value": 90,
+          "cap": [
+            0,
+            100
+          ]
+        },
+        "vocalPresence": {
+          "op": "max",
+          "from": "prev.vocalPresence",
+          "value": 90,
+          "cap": [
+            0,
+            100
+          ]
+        }
+      },
+      "modifiers": [
+        "full release",
+        "wide stereo",
+        "emotional peak"
+      ],
+      "layerHints": {
+        "voices": [
+          "stacked lead",
+          "choir backing"
+        ],
+        "instruments": [
+          "full kit",
+          "bass thick",
+          "wide synths"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_outro_hard_stop_decider",
+      "category": "Adaptive",
+      "label": "Adaptive Outro \u2014 Fade vs Hard Stop",
+      "sectionType": "Outro",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "context_set",
+          "from": "prev.energy",
+          "ifGte": 75,
+          "then": 40,
+          "else": 25,
+          "cap": [
+            0,
+            70
+          ]
+        },
+        "density": {
+          "op": "context_set",
+          "from": "prev.density",
+          "ifGte": 75,
+          "then": 45,
+          "else": 20,
+          "cap": [
+            0,
+            70
+          ]
+        },
+        "brightness": {
+          "op": "context_set",
+          "from": "prev.brightness",
+          "ifGte": 75,
+          "then": 50,
+          "else": 35,
+          "cap": [
+            0,
+            80
+          ]
+        },
+        "vocalPresence": {
+          "op": "context_set",
+          "from": "prev.vocalPresence",
+          "ifGte": 60,
+          "then": 30,
+          "else": 45,
+          "cap": [
+            0,
+            80
+          ]
+        }
+      },
+      "modifiers": [
+        "decider",
+        "clean ending logic"
+      ],
+      "layerHints": {
+        "voices": [
+          "optional tag"
+        ],
+        "instruments": [
+          "either final hit or fade tail"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_prechorus_brightness_push",
+      "category": "Adaptive",
+      "label": "Adaptive Pre-Chorus \u2014 Brightness Push",
+      "sectionType": "Pre-Chorus",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "add",
+          "from": "prev.energy",
+          "value": 10,
+          "cap": [
+            0,
+            88
+          ]
+        },
+        "density": {
+          "op": "add",
+          "from": "prev.density",
+          "value": 10,
+          "cap": [
+            0,
+            85
+          ]
+        },
+        "brightness": {
+          "op": "add",
+          "from": "prev.brightness",
+          "value": 22,
+          "cap": [
+            0,
+            98
+          ]
+        },
+        "vocalPresence": {
+          "op": "mul",
+          "from": "prev.vocalPresence",
+          "value": 0.9,
+          "cap": [
+            0,
+            90
+          ]
+        }
+      },
+      "modifiers": [
+        "brighten up",
+        "air opens",
+        "lift into hook"
+      ],
+      "layerHints": {
+        "voices": [
+          "restrained lead"
+        ],
+        "instruments": [
+          "open hats",
+          "sparkle layer"
+        ]
+      },
+      "emphasis": "AUTO"
+    },
+    {
+      "id": "ad_break_filtered_reset",
+      "category": "Adaptive",
+      "label": "Adaptive Break \u2014 Filtered Reset",
+      "sectionType": "Break",
+      "adaptive": true,
+      "adaptiveRules": {
+        "energy": {
+          "op": "mul",
+          "from": "prev.energy",
+          "value": 0.55,
+          "cap": [
+            5,
+            70
+          ]
+        },
+        "density": {
+          "op": "mul",
+          "from": "prev.density",
+          "value": 0.45,
+          "cap": [
+            5,
+            70
+          ]
+        },
+        "brightness": {
+          "op": "mul",
+          "from": "prev.brightness",
+          "value": 0.6,
+          "cap": [
+            8,
+            80
+          ]
+        },
+        "vocalPresence": {
+          "op": "mul",
+          "from": "prev.vocalPresence",
+          "value": 0.55,
+          "cap": [
+            0,
+            80
+          ]
+        }
+      },
+      "modifiers": [
+        "filtered elements",
+        "reset while moving"
+      ],
+      "layerHints": {
+        "voices": [
+          "distant lead"
+        ],
+        "instruments": [
+          "filtered drums",
+          "filtered bass"
+        ]
+      },
+      "emphasis": "AUTO"
+    }
+  ]
+}

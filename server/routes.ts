@@ -3,16 +3,18 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertProjectSchema } from "@shared/schema";
 import { z } from "zod";
+import { isAuthenticated } from "./replit_integrations/auth";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   
-  // Get all projects
-  app.get("/api/projects", async (req, res) => {
+  // Get all projects for current user
+  app.get("/api/projects", isAuthenticated, async (req: any, res) => {
     try {
-      const projects = await storage.getProjects();
+      const userId = req.user?.claims?.sub;
+      const projects = await storage.getProjectsByUser(userId);
       res.json(projects);
     } catch (error) {
       console.error("Error fetching projects:", error);
@@ -20,17 +22,23 @@ export async function registerRoutes(
     }
   });
 
-  // Get single project
-  app.get("/api/projects/:id", async (req, res) => {
+  // Get single project (only if owned by user)
+  app.get("/api/projects/:id", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid project ID" });
       }
 
+      const userId = req.user?.claims?.sub;
       const project = await storage.getProject(id);
+      
       if (!project) {
         return res.status(404).json({ error: "Project not found" });
+      }
+      
+      if (project.userId && project.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
       }
 
       res.json(project);
@@ -40,10 +48,14 @@ export async function registerRoutes(
     }
   });
 
-  // Create project
-  app.post("/api/projects", async (req, res) => {
+  // Create project for current user
+  app.post("/api/projects", isAuthenticated, async (req: any, res) => {
     try {
-      const validated = insertProjectSchema.parse(req.body);
+      const userId = req.user?.claims?.sub;
+      const validated = insertProjectSchema.parse({
+        ...req.body,
+        userId,
+      });
       const project = await storage.createProject(validated);
       res.status(201).json(project);
     } catch (error) {
@@ -55,20 +67,27 @@ export async function registerRoutes(
     }
   });
 
-  // Update project
-  app.patch("/api/projects/:id", async (req, res) => {
+  // Update project (only if owned by user)
+  app.patch("/api/projects/:id", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid project ID" });
       }
 
-      const validated = insertProjectSchema.partial().parse(req.body);
-      const project = await storage.updateProject(id, validated);
+      const userId = req.user?.claims?.sub;
+      const existingProject = await storage.getProject(id);
       
-      if (!project) {
+      if (!existingProject) {
         return res.status(404).json({ error: "Project not found" });
       }
+      
+      if (existingProject.userId && existingProject.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const validated = insertProjectSchema.partial().parse(req.body);
+      const project = await storage.updateProject(id, validated);
 
       res.json(project);
     } catch (error) {
@@ -80,19 +99,26 @@ export async function registerRoutes(
     }
   });
 
-  // Delete project
-  app.delete("/api/projects/:id", async (req, res) => {
+  // Delete project (only if owned by user)
+  app.delete("/api/projects/:id", isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid project ID" });
       }
 
-      const success = await storage.deleteProject(id);
-      if (!success) {
+      const userId = req.user?.claims?.sub;
+      const existingProject = await storage.getProject(id);
+      
+      if (!existingProject) {
         return res.status(404).json({ error: "Project not found" });
       }
+      
+      if (existingProject.userId && existingProject.userId !== userId) {
+        return res.status(403).json({ error: "Access denied" });
+      }
 
+      await storage.deleteProject(id);
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting project:", error);

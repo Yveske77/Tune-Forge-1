@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useStore, uid } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import { Settings2, Sliders, Mic2, Drum, Speaker, Music, Plus, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import dictionaries from '@/data/dictionaries.json';
 import { TemplateSelector } from '@/components/TemplateSelector';
+import { genreSubgenres } from '@/data/subgenres';
 import {
   Collapsible,
   CollapsibleContent,
@@ -32,6 +33,17 @@ export function InstrumentRack() {
 
   const layers = doc.layers;
   const architecture = doc.architecture;
+
+  const availableSubgenres = useMemo(() => {
+    const subgenres = new Set<string>();
+    architecture.genreTags.forEach(genre => {
+      const subs = genreSubgenres[genre];
+      if (subs) {
+        subs.forEach(s => subgenres.add(s));
+      }
+    });
+    return Array.from(subgenres).sort();
+  }, [architecture.genreTags]);
 
   const addLayerGroup = (kind: 'instruments' | 'voices') => {
     const name = kind === 'voices' ? 'New Voice Group' : 'New Instrument Group';
@@ -251,6 +263,37 @@ export function InstrumentRack() {
                     ))}
                   </div>
                 </div>
+
+                {/* Subgenre Selector */}
+                {availableSubgenres.length > 0 && (
+                  <div className="space-y-2 mt-3">
+                    <span className="text-[9px] uppercase tracking-wider text-white/40">Subgenre</span>
+                    <select
+                      className="w-full bg-black/60 border border-white/10 rounded-sm px-2 py-1.5 text-xs text-white focus:border-primary/50 outline-none font-mono"
+                      value={architecture.subgenre || ''}
+                      onChange={(e) => setArchitecture({ subgenre: e.target.value || undefined })}
+                      data-testid="select-subgenre"
+                    >
+                      <option value="">Select subgenre...</option>
+                      {availableSubgenres.map(sub => (
+                        <option key={sub} value={sub}>{sub}</option>
+                      ))}
+                    </select>
+                    {architecture.subgenre && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-secondary/20 text-secondary border border-secondary/30">
+                          {architecture.subgenre}
+                        </span>
+                        <button 
+                          onClick={() => setArchitecture({ subgenre: undefined })}
+                          className="text-white/40 hover:text-white"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </CollapsibleContent>
           </div>

@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { useStore, LaneType, uid } from '@/lib/store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Plus, Trash2, ChevronDown, Check, Music, Mic2, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, Check, Music, Mic2, ChevronRight, ListMusic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,6 +17,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { songStructurePresets } from '@/data/subgenres';
 
 const MODIFIER_OPTIONS = {
   tempo: ["slow", "moderate", "fast", "very fast", "flexible", "rubato"],
@@ -97,11 +98,58 @@ export function Tube() {
     });
   };
 
+  const applyStructurePreset = (presetId: string) => {
+    const preset = songStructurePresets.find(p => p.id === presetId);
+    if (!preset) return;
+    
+    // Create new sections from preset
+    const newSections = preset.sections.map((s) => ({
+      id: uid('sec'),
+      type: s.type,
+      label: s.label,
+      content: '',
+      modifiers: [],
+      emphasis: [],
+      tension: 50,
+      bars: s.bars,
+    }));
+    
+    // Use setDoc to properly update state - replace sections for active variant
+    const activeVariant = useStore.getState().doc.activeVariant;
+    useStore.getState().setDoc((doc) => ({
+      ...doc,
+      arrangementTracks: {
+        ...doc.arrangementTracks,
+        [activeVariant]: newSections,
+      },
+    }));
+  };
+
   return (
     <div className="w-full h-full flex flex-col glass-card rounded-lg overflow-hidden relative" data-testid="tube-timeline">
       <div className="h-12 border-b border-white/5 flex items-center px-4 justify-between bg-black/20 shrink-0">
         <h2 className="text-sm font-medium tracking-wider text-muted-foreground uppercase font-mono">Timeline / Tube View</h2>
         <div className="flex gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="outline" className="h-7 text-xs bg-white/5 border-white/10 hover:bg-white/10" data-testid="button-structure-preset">
+                <ListMusic className="w-3 h-3 mr-1" /> Structure Preset
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-background border-white/10 max-h-80 overflow-y-auto">
+              <DropdownMenuLabel className="text-[10px] text-white/40 uppercase">Song Structures</DropdownMenuLabel>
+              {songStructurePresets.map((preset) => (
+                <DropdownMenuItem 
+                  key={preset.id} 
+                  onClick={() => applyStructurePreset(preset.id)} 
+                  className="text-xs font-mono cursor-pointer"
+                  data-testid={`preset-${preset.id}`}
+                >
+                  {preset.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm" variant="outline" className="h-7 text-xs bg-white/5 border-white/10 hover:bg-white/10" data-testid="button-add-section-dropdown">

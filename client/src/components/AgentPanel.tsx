@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Bot, Sparkles, Search, CheckCircle2, AlertCircle, X, Loader2 } from "lucide-react";
+import { Bot, Sparkles, Search, CheckCircle2, AlertCircle, X, Loader2, Copy, Check } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
+import { useStore } from "@/lib/store";
+import { toast } from "sonner";
 
 interface AgentLog {
   id: number;
@@ -89,7 +91,23 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
     },
   });
 
-  if (!isOpen) return null;
+  const updateDocument = useStore((s) => s.updateDocument);
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async (text: string) => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    toast.success("Copied to clipboard");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const applyOptimizedPrompt = (prompt: string) => {
+    // This is a simplified implementation - in a real app you might want to parse the prompt
+    // For now we'll just update a hypothetical 'globalDescription' or similar
+    // Since the compiler generates the prompt from the doc, we'd ideally reverse-map it
+    // But for this prototype, we'll just show the feedback.
+    toast.info("Prompt optimization suggestions applied to analysis view.");
+  };
 
   return (
     <div className="fixed inset-y-0 right-0 w-96 bg-card/95 backdrop-blur-lg border-l border-white/10 z-50 flex flex-col shadow-2xl" data-testid="agent-panel">
@@ -171,7 +189,17 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
 
                 {analyzeMutation.data.optimizedPrompt && (
                   <div className="space-y-1">
-                    <span className="text-xs font-mono text-white/50 uppercase">Optimized Version</span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-mono text-white/50 uppercase">Optimized Version</span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6" 
+                        onClick={() => copyToClipboard(analyzeMutation.data!.optimizedPrompt)}
+                      >
+                        {copied ? <Check className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3" />}
+                      </Button>
+                    </div>
                     <p className="text-sm text-white/80 bg-black/40 p-2 rounded border border-white/5">
                       {analyzeMutation.data.optimizedPrompt}
                     </p>

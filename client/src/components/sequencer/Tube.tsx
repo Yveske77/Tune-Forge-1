@@ -4,6 +4,12 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function Tube() {
   const doc = useStore((s) => s.doc);
@@ -48,12 +54,12 @@ export function Tube() {
     return d;
   };
 
-  const handleAddSection = () => {
-    const verseCount = sections.filter((s) => s.type.toLowerCase() === 'verse').length;
+  const handleAddSection = (type: string = 'Verse') => {
+    const typeCount = sections.filter((s) => s.type === type).length;
     addSection({
       id: uid('sec'),
-      type: 'Verse',
-      label: `Verse ${verseCount + 1}`,
+      type: type,
+      label: `${type} ${typeCount + 1}`,
       content: '',
       modifiers: [],
       emphasis: [],
@@ -66,9 +72,20 @@ export function Tube() {
       <div className="h-12 border-b border-white/5 flex items-center px-4 justify-between bg-black/20 shrink-0">
         <h2 className="text-sm font-medium tracking-wider text-muted-foreground uppercase font-mono">Timeline / Tube View</h2>
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" className="h-7 text-xs bg-white/5 border-white/10 hover:bg-white/10" onClick={handleAddSection} data-testid="button-add-section">
-            <Plus className="w-3 h-3 mr-1" /> Add Section
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="outline" className="h-7 text-xs bg-white/5 border-white/10 hover:bg-white/10" data-testid="button-add-section-dropdown">
+                <Plus className="w-3 h-3 mr-1" /> Add Section
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-background border-white/10">
+              {['Intro', 'Verse', 'Chorus', 'Pre-Chorus', 'Bridge', 'Outro'].map((type) => (
+                <DropdownMenuItem key={type} onClick={() => handleAddSection(type)} className="text-xs font-mono cursor-pointer">
+                  {type}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -165,14 +182,14 @@ export function Tube() {
 
                   <div className="mt-4 flex-1 bg-black/40 rounded border border-white/5 p-2 gap-1 flex flex-col overflow-y-auto no-scrollbar shadow-inner">
                     <div className="text-[10px] text-muted-foreground font-mono uppercase mb-1 sticky top-0 bg-black/40 backdrop-blur pb-1">
-                      Content & Modifiers
+                      Lyrics & Modifiers
                     </div>
-                    <input
+                    <textarea
                       value={section.content}
                       onChange={(e) => updateSection(section.id, { content: e.target.value })}
-                      placeholder="Description..."
-                      className="w-full bg-black/30 border border-white/5 rounded px-2 py-1 text-xs text-white/80 outline-none"
-                      data-testid={`input-section-content-${section.id}`}
+                      placeholder="Enter lyrics or description..."
+                      className="w-full bg-black/30 border border-white/5 rounded px-2 py-1 text-xs text-white/80 outline-none resize-none min-h-[60px]"
+                      data-testid={`textarea-section-content-${section.id}`}
                     />
                     <div className="flex flex-wrap gap-1 mt-2">
                       {section.modifiers.map((mod, i) => (

@@ -1,0 +1,36 @@
+{
+  "loops": [
+    {
+      "id": "loop_basic_4bar",
+      "category": "Loop",
+      "label": "4-Bar Groove",
+      "bars": 4,
+      "repeat": 2,
+      "content": "drum groove, bassline",
+      "lanes": {
+        "energy": 50,
+        "density": 40,
+        "brightness": 55,
+        "vocalPresence": 0
+      },
+      "modifiers": ["steady", "groove"],
+      "emphasis": []
+    },
+    {
+      "id": "loop_lofi_8bar",
+      "category": "Loop",
+      "label": "Lo‑Fi 8‑Bar Loop",
+      "bars": 8,
+      "repeat": 4,
+      "content": "lo-fi beat, vinyl noise",
+      "lanes": {
+        "energy": 40,
+        "density": 30,
+        "brightness": 35,
+        "vocalPresence": 0
+      },
+      "modifiers": ["lo-fi", "vinyl"],
+      "emphasis": []
+    }
+  ]
+}

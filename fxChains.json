@@ -1,0 +1,16 @@
+{
+  "chains": [
+    {
+      "id": "fx_basic_reverb_delay",
+      "category": "FXChain",
+      "label": "Reverb + Delay",
+      "effects": ["plate reverb", "tape delay"]
+    },
+    {
+      "id": "fx_chorus_flanger",
+      "category": "FXChain",
+      "label": "Chorus + Flanger",
+      "effects": ["chorus", "flanger"]
+    }
+  ]
+}

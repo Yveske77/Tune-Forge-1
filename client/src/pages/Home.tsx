@@ -4,12 +4,12 @@ import { Tube } from '@/components/sequencer/Tube';
 import { InstrumentRack } from '@/components/sequencer/InstrumentRack';
 import { PromptPreview } from '@/components/sequencer/PromptPreview';
 import { ProjectManager } from '@/components/ProjectManager';
-import { UserMenu } from '@/components/UserMenu';
 import { AgentPanel } from '@/components/AgentPanel';
 import { useStore } from '@/lib/store';
 import { compileToSuno } from '@/lib/compiler';
 import { cn } from '@/lib/utils';
-import { Activity } from 'lucide-react';
+import { Activity, Bot } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function Home() {
   const doc = useStore((s) => s.doc);
@@ -35,7 +35,16 @@ export default function Home() {
         
         <div className="flex items-center gap-3">
           <ProjectManager />
-          <UserMenu onOpenAgentPanel={() => setAgentPanelOpen(true)} />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setAgentPanelOpen(true)}
+            className="h-8 gap-2 bg-primary/10 border-primary/30 hover:bg-primary/20"
+            data-testid="button-open-agent"
+          >
+            <Bot className="w-4 h-4" />
+            AI Assistant
+          </Button>
           
           <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-white/5">
             <button 

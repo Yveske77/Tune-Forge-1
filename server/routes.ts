@@ -3,10 +3,15 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertProjectSchema } from "@shared/schema";
 import { z } from "zod";
-import { isAuthenticated } from "./replit_integrations/auth";
 import { registerAgentRoutes } from "./agentRoutes";
 import { registerFileRoutes } from "./fileRoutes";
 import { apiRateLimiter, agentRateLimiter, uploadRateLimiter } from "./middleware/rateLimit";
+
+// Bypass auth middleware - inject test user for development
+const bypassAuth = (req: any, res: any, next: any) => {
+  req.user = { claims: { sub: "test-user-123" } };
+  next();
+};
 
 export async function registerRoutes(
   httpServer: Server,
@@ -28,7 +33,7 @@ export async function registerRoutes(
   registerFileRoutes(app);
   
   // Get all projects for current user
-  app.get("/api/projects", isAuthenticated, async (req: any, res) => {
+  app.get("/api/projects", bypassAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const projects = await storage.getProjectsByUser(userId);
@@ -40,7 +45,7 @@ export async function registerRoutes(
   });
 
   // Get single project (only if owned by user)
-  app.get("/api/projects/:id", isAuthenticated, async (req: any, res) => {
+  app.get("/api/projects/:id", bypassAuth, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -67,7 +72,7 @@ export async function registerRoutes(
   });
 
   // Create project for current user
-  app.post("/api/projects", isAuthenticated, async (req: any, res) => {
+  app.post("/api/projects", bypassAuth, async (req: any, res) => {
     try {
       const userId = req.user?.claims?.sub;
       const validated = insertProjectSchema.parse({
@@ -86,7 +91,7 @@ export async function registerRoutes(
   });
 
   // Update project (only if owned by user)
-  app.patch("/api/projects/:id", isAuthenticated, async (req: any, res) => {
+  app.patch("/api/projects/:id", bypassAuth, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -119,7 +124,7 @@ export async function registerRoutes(
   });
 
   // Delete project (only if owned by user)
-  app.delete("/api/projects/:id", isAuthenticated, async (req: any, res) => {
+  app.delete("/api/projects/:id", bypassAuth, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {

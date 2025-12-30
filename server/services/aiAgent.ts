@@ -104,6 +104,7 @@ Return as JSON with format:
 {"suggestions": [{"area": string, "currentState": string, "suggestion": string, "priority": "high"|"medium"|"low", "implementationHint": string}]}`;
 
   try {
+    console.log("Calling OpenAI for best practices on topic:", topic);
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -115,9 +116,12 @@ Return as JSON with format:
     });
 
     const content = response.choices[0]?.message?.content || "{}";
+    console.log("OpenAI response for best practices:", content);
     try {
       const parsed = JSON.parse(content);
-      return Array.isArray(parsed.suggestions) ? parsed.suggestions : [];
+      const suggestions = Array.isArray(parsed.suggestions) ? parsed.suggestions : [];
+      console.log("Parsed suggestions count:", suggestions.length);
+      return suggestions;
     } catch {
       console.error("Failed to parse best practices response:", content);
       return [];

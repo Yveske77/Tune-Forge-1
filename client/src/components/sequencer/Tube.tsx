@@ -180,23 +180,33 @@ export function Tube() {
                     onChange={(v) => setSectionLaneValue(section.id, 'vocalPresence', v)}
                   />
 
-                  <div className="mt-4 flex-1 bg-black/40 rounded border border-white/5 p-2 gap-1 flex flex-col overflow-y-auto no-scrollbar shadow-inner">
-                    <div className="text-[10px] text-muted-foreground font-mono uppercase mb-1 sticky top-0 bg-black/40 backdrop-blur pb-1">
-                      Lyrics & Modifiers
+                  <div className="mt-4 flex-1 flex flex-col gap-2 overflow-y-auto no-scrollbar">
+                    {/* Lyrics Input */}
+                    <div className="bg-black/40 rounded border border-white/5 p-2 shadow-inner">
+                      <div className="text-[10px] text-muted-foreground font-mono uppercase mb-1">
+                        Lyrics
+                      </div>
+                      <textarea
+                        value={section.content}
+                        onChange={(e) => updateSection(section.id, { content: e.target.value })}
+                        placeholder="Enter lyrics or description..."
+                        className="w-full bg-black/30 border border-white/5 rounded px-2 py-1 text-xs text-white/80 outline-none resize-none min-h-[50px]"
+                        data-testid={`textarea-section-content-${section.id}`}
+                      />
                     </div>
-                    <textarea
-                      value={section.content}
-                      onChange={(e) => updateSection(section.id, { content: e.target.value })}
-                      placeholder="Enter lyrics or description..."
-                      className="w-full bg-black/30 border border-white/5 rounded px-2 py-1 text-xs text-white/80 outline-none resize-none min-h-[60px]"
-                      data-testid={`textarea-section-content-${section.id}`}
-                    />
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {section.modifiers.map((mod, i) => (
-                        <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary border border-primary/30">
-                          {mod}
-                        </span>
-                      ))}
+
+                    {/* Modifiers Input */}
+                    <div className="bg-black/40 rounded border border-white/5 p-2 shadow-inner">
+                      <div className="text-[10px] text-muted-foreground font-mono uppercase mb-1">
+                        Modifiers
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {section.modifiers.map((mod, i) => (
+                          <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary border border-primary/30">
+                            {mod}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>

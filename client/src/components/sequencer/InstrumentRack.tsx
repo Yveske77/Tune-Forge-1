@@ -12,9 +12,60 @@ export function InstrumentRack() {
   const setMeta = useStore((s) => s.setMeta);
   const setLanes = useStore((s) => s.setLanes);
   const updateLayerItem = useStore((s) => s.updateLayerItem);
+  const setDoc = useStore((s) => s.setDoc);
 
   const layers = doc.layers;
   const architecture = doc.architecture;
+
+  const addLayerGroup = (kind: 'instruments' | 'voices') => {
+    const name = kind === 'voices' ? 'New Voice Group' : 'New Instrument Group';
+    const group = { 
+      id: uid(kind === 'voices' ? 'vgrp' : 'grp'), 
+      name, 
+      items: [] 
+    };
+    setDoc(d => ({
+      ...d, 
+      layers: {
+        ...d.layers, 
+        [kind]: [...d.layers[kind], group]
+      }
+    }));
+  };
+
+  const addLayerItem = (kind: 'instruments' | 'voices', groupId: string, itemName: string) => {
+    setDoc(d => ({
+      ...d,
+      layers: {
+        ...d.layers,
+        [kind]: d.layers[kind].map(g => {
+          if (g.id !== groupId) return g;
+          const exists = g.items.some(item => item.name === itemName);
+          if (exists) return g;
+          return {
+            ...g,
+            items: [...g.items, { name: itemName, level: 70, position: 'center' }]
+          };
+        })
+      }
+    }));
+  };
+
+  const removeLayerItem = (kind: 'instruments' | 'voices', groupId: string, itemName: string) => {
+    setDoc(d => ({
+      ...d,
+      layers: {
+        ...d.layers,
+        [kind]: d.layers[kind].map(g => {
+          if (g.id !== groupId) return g;
+          return {
+            ...g,
+            items: g.items.filter(item => item.name !== itemName)
+          };
+        })
+      }
+    }));
+  };
 
   const getIcon = (name: string) => {
     const lower = name.toLowerCase();
@@ -204,44 +255,124 @@ export function InstrumentRack() {
           
           {/* Instruments */}
           <div className="space-y-1">
-            <span className="text-[9px] uppercase tracking-wider text-white/40">Instruments</span>
-            {layers.instruments.flatMap(group => 
-              group.items.map((item, idx) => (
-                <div key={`${group.id}-${idx}`} className="relative flex items-center justify-between p-2 rounded bg-white/[0.02] hover:bg-white/5 border border-white/5 hover:border-white/10 transition-all group overflow-hidden">
-                  <div className="flex items-center gap-3 z-10">
-                    <div className="w-6 h-6 rounded flex items-center justify-center text-black/80 shadow-lg bg-yellow-500 shadow-yellow-500/20">
-                      {getIcon(item.name)}
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] uppercase tracking-wider text-white/40">Instruments</span>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                className="h-5 px-2 text-[10px]"
+                onClick={() => addLayerGroup('instruments')}
+              >
+                <Plus className="w-3 h-3 mr-1" /> Group
+              </Button>
+            </div>
+            {layers.instruments.map(group => (
+              <div key={group.id} className="space-y-1 p-2 bg-black/20 rounded border border-white/5">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-white/50 font-mono">{group.name}</span>
+                  <select 
+                    className="text-[10px] bg-black/60 border border-white/10 rounded px-1 py-0.5 text-white"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        addLayerItem('instruments', group.id, e.target.value);
+                        e.target.value = '';
+                      }
+                    }}
+                    defaultValue=""
+                  >
+                    <option value="">+ Add...</option>
+                    {dictionaries.instruments.map(inst => (
+                      <option key={inst} value={inst}>{inst}</option>
+                    ))}
+                  </select>
+                </div>
+                {group.items.map((item, idx) => (
+                  <div key={`${group.id}-${idx}`} className="relative flex items-center justify-between p-2 rounded bg-white/[0.02] hover:bg-white/5 border border-white/5 hover:border-white/10 transition-all group/item overflow-hidden">
+                    <div className="flex items-center gap-3 z-10">
+                      <div className="w-6 h-6 rounded flex items-center justify-center text-black/80 shadow-lg bg-yellow-500 shadow-yellow-500/20">
+                        {getIcon(item.name)}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-white/90 font-display tracking-tight">{item.name}</span>
+                        <span className="text-[10px] text-white/40 font-mono tracking-wider">{group.name}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-white/90 font-display tracking-tight">{item.name}</span>
-                      <span className="text-[10px] text-white/40 font-mono tracking-wider">{group.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-white/40">{item.level}%</span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-5 w-5 opacity-0 group-hover/item:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                        onClick={() => removeLayerItem('instruments', group.id, item.name)}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
                     </div>
                   </div>
-                  <span className="text-[10px] text-white/40">{item.level}%</span>
-                </div>
-              ))
-            )}
+                ))}
+              </div>
+            ))}
           </div>
 
           {/* Voices */}
           <div className="space-y-1">
-            <span className="text-[9px] uppercase tracking-wider text-white/40">Voices</span>
-            {layers.voices.flatMap(group => 
-              group.items.map((item, idx) => (
-                <div key={`${group.id}-${idx}`} className="relative flex items-center justify-between p-2 rounded bg-white/[0.02] hover:bg-white/5 border border-white/5 hover:border-white/10 transition-all group overflow-hidden">
-                  <div className="flex items-center gap-3 z-10">
-                    <div className="w-6 h-6 rounded flex items-center justify-center text-black/80 shadow-lg bg-purple-500 shadow-purple-500/20">
-                      <Mic2 className="w-3 h-3" />
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] uppercase tracking-wider text-white/40">Voices</span>
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                className="h-5 px-2 text-[10px]"
+                onClick={() => addLayerGroup('voices')}
+              >
+                <Plus className="w-3 h-3 mr-1" /> Group
+              </Button>
+            </div>
+            {layers.voices.map(group => (
+              <div key={group.id} className="space-y-1 p-2 bg-black/20 rounded border border-white/5">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-[10px] text-white/50 font-mono">{group.name}</span>
+                  <select 
+                    className="text-[10px] bg-black/60 border border-white/10 rounded px-1 py-0.5 text-white"
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        addLayerItem('voices', group.id, e.target.value);
+                        e.target.value = '';
+                      }
+                    }}
+                    defaultValue=""
+                  >
+                    <option value="">+ Add...</option>
+                    {dictionaries.voices.map(voice => (
+                      <option key={voice} value={voice}>{voice}</option>
+                    ))}
+                  </select>
+                </div>
+                {group.items.map((item, idx) => (
+                  <div key={`${group.id}-${idx}`} className="relative flex items-center justify-between p-2 rounded bg-white/[0.02] hover:bg-white/5 border border-white/5 hover:border-white/10 transition-all group/item overflow-hidden">
+                    <div className="flex items-center gap-3 z-10">
+                      <div className="w-6 h-6 rounded flex items-center justify-center text-black/80 shadow-lg bg-purple-500 shadow-purple-500/20">
+                        <Mic2 className="w-3 h-3" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-white/90 font-display tracking-tight">{item.name}</span>
+                        <span className="text-[10px] text-white/40 font-mono tracking-wider">{group.name}</span>
+                      </div>
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-white/90 font-display tracking-tight">{item.name}</span>
-                      <span className="text-[10px] text-white/40 font-mono tracking-wider">{group.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-white/40">{item.level}%</span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-5 w-5 opacity-0 group-hover/item:opacity-100 transition-opacity text-destructive hover:text-destructive"
+                        onClick={() => removeLayerItem('voices', group.id, item.name)}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
                     </div>
                   </div>
-                  <span className="text-[10px] text-white/40">{item.level}%</span>
-                </div>
-              ))
-            )}
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </div>

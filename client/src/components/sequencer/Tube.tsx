@@ -183,21 +183,21 @@ export function Tube() {
 
                 {/* Bars Length Slider */}
                 <div className="mb-2 px-2 py-1.5 bg-black/40 rounded border border-white/5">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[9px] text-muted-foreground font-mono uppercase">Bars</span>
-                    <div className="flex items-center gap-2 flex-1">
-                      <input
-                        type="range"
-                        min="2"
-                        max="64"
-                        step="2"
-                        value={section.bars || 8}
-                        onChange={(e) => updateSection(section.id, { bars: parseInt(e.target.value) })}
-                        className="flex-1 h-1 accent-primary cursor-pointer"
-                        data-testid={`slider-bars-${section.id}`}
-                      />
-                      <span className="text-[10px] text-white/80 font-mono w-6 text-right">{section.bars || 8}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-center min-w-[32px]">
+                      <span className="text-sm font-bold text-white font-mono">{section.bars || 8}</span>
+                      <span className="text-[8px] text-muted-foreground font-mono uppercase">Bars</span>
                     </div>
+                    <input
+                      type="range"
+                      min="2"
+                      max="64"
+                      step="2"
+                      value={section.bars || 8}
+                      onChange={(e) => updateSection(section.id, { bars: parseInt(e.target.value) })}
+                      className="flex-1 h-1 accent-primary cursor-pointer"
+                      data-testid={`slider-bars-${section.id}`}
+                    />
                   </div>
                 </div>
 

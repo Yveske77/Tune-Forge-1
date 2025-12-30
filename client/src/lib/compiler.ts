@@ -115,6 +115,37 @@ function buildSectionLayerHints(doc: Document, secId: string): string {
   return bits.length ? parens(bits.join(' | ')) : '';
 }
 
+function buildSectionLaneHints(sec: { lanes?: { energy?: number; density?: number; brightness?: number; vocalPresence?: number }; tension?: number; bars?: number }, globalLanes: { energy: number; density: number; brightness: number; vocalPresence: number }): string {
+  const parts: string[] = [];
+  const lanes = sec.lanes || {};
+  
+  // Include section-specific lane values if they differ from global
+  if (typeof lanes.energy === 'number' && lanes.energy !== globalLanes.energy) {
+    parts.push(`energy:${lanes.energy}%`);
+  }
+  if (typeof lanes.density === 'number' && lanes.density !== globalLanes.density) {
+    parts.push(`density:${lanes.density}%`);
+  }
+  if (typeof lanes.brightness === 'number' && lanes.brightness !== globalLanes.brightness) {
+    parts.push(`brightness:${lanes.brightness}%`);
+  }
+  if (typeof lanes.vocalPresence === 'number' && lanes.vocalPresence !== globalLanes.vocalPresence) {
+    parts.push(`vocal:${lanes.vocalPresence}%`);
+  }
+  
+  // Include tension if set
+  if (typeof sec.tension === 'number' && sec.tension !== 50) {
+    parts.push(`tension:${sec.tension}%`);
+  }
+  
+  // Include bars if set
+  if (typeof sec.bars === 'number') {
+    parts.push(`${sec.bars}bars`);
+  }
+  
+  return parts.length ? parens(parts.join(', ')) : '';
+}
+
 function buildArrangement(doc: Document): string {
   const arr = doc.arrangementTracks[doc.activeVariant] || [];
   return arr.map((sec) => {
@@ -123,13 +154,15 @@ function buildArrangement(doc: Document): string {
     const mods = joinClean(sec.modifiers);
     const emph = joinClean(sec.emphasis, ' ');
     const layerHints = buildSectionLayerHints(doc, sec.id);
+    const sectionLaneHints = buildSectionLaneHints(sec, doc.lanes);
 
     const head = content ? `${label}: ${content}` : `${label}`;
     const tag = bracket(head);
     const modStr = mods ? ` ${parens(mods)}` : '';
     const emphStr = emph ? ` ${emph}` : '';
     const layerStr = layerHints ? ` ${layerHints}` : '';
-    return `${tag}${modStr}${emphStr}${layerStr}`.trim();
+    const laneStr = sectionLaneHints ? ` ${sectionLaneHints}` : '';
+    return `${tag}${modStr}${emphStr}${laneStr}${layerStr}`.trim();
   }).join(' ');
 }
 

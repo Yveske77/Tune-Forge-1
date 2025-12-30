@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useStore, LaneType, uid } from '@/lib/store';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Plus, Trash2, ChevronDown, Check } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, Check, Music, Mic2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -12,6 +12,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const MODIFIER_OPTIONS = {
   tempo: ["slow", "moderate", "fast", "very fast", "flexible", "rubato"],
@@ -29,10 +34,22 @@ export function Tube() {
   const updateSection = useStore((s) => s.updateSection);
   const removeSection = useStore((s) => s.removeSection);
   const setSectionLaneValue = useStore((s) => s.setSectionLaneValue);
+  const setLayerAutomation = useStore((s) => s.setLayerAutomation);
+  const [expandedLayers, setExpandedLayers] = useState<Record<string, boolean>>({});
   
   const sections = doc.arrangementTracks[doc.activeVariant];
   const layers = doc.layers;
+  const sectionLayerAutomation = doc.sectionLayerAutomation;
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const getLayerLevel = (sectionId: string, kind: 'instruments' | 'voices', groupId: string, itemName: string, defaultLevel: number): number => {
+    const key = `${groupId}::${itemName}`;
+    return sectionLayerAutomation[sectionId]?.[kind]?.[key]?.level ?? defaultLevel;
+  };
+
+  const toggleLayersExpanded = (sectionId: string) => {
+    setExpandedLayers(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
+  };
 
   const SECTION_WIDTH = 180;
   const SECTION_GAP = 8;
@@ -292,6 +309,98 @@ export function Tube() {
                       )}
                     </div>
                   </div>
+
+                  {/* Layer Controls - Collapsible */}
+                  <Collapsible 
+                    open={expandedLayers[section.id]} 
+                    onOpenChange={() => toggleLayersExpanded(section.id)}
+                    className="mt-2"
+                  >
+                    <CollapsibleTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="w-full h-7 justify-between px-2 bg-black/40 border border-white/5 hover:bg-black/60 hover:border-white/10"
+                        data-testid={`button-layers-toggle-${section.id}`}
+                      >
+                        <span className="text-[10px] text-muted-foreground font-mono uppercase flex items-center gap-1">
+                          <Music className="w-3 h-3" />
+                          <span>Layers</span>
+                          <span className="text-white/30 text-[8px]">
+                            ({layers.instruments.reduce((acc, g) => acc + g.items.length, 0) + layers.voices.reduce((acc, g) => acc + g.items.length, 0)})
+                          </span>
+                        </span>
+                        <ChevronRight className={cn("w-3 h-3 transition-transform", expandedLayers[section.id] && "rotate-90")} />
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className="mt-1 bg-black/40 rounded border border-white/5 p-2 shadow-inner max-h-48 overflow-y-auto">
+                        {/* Instruments */}
+                        {layers.instruments.map((group) => (
+                          <div key={group.groupId} className="mb-2">
+                            <div className="text-[9px] text-primary/70 font-mono uppercase mb-1 flex items-center gap-1">
+                              <Music className="w-2.5 h-2.5" />
+                              {group.groupId}
+                            </div>
+                            {group.items.map((item) => {
+                              const level = getLayerLevel(section.id, 'instruments', group.groupId, item.name, item.level);
+                              return (
+                                <div key={item.name} className="flex items-center gap-2 mb-1">
+                                  <span className="text-[9px] text-white/60 w-16 truncate" title={item.name}>
+                                    {item.name}
+                                  </span>
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={level}
+                                    onChange={(e) => setLayerAutomation(section.id, 'instruments', group.groupId, item.name, { level: parseInt(e.target.value) })}
+                                    className="flex-1 h-1 accent-primary cursor-pointer"
+                                    data-testid={`slider-instrument-${section.id}-${group.groupId}-${item.name}`}
+                                  />
+                                  <span className="text-[8px] text-white/40 w-6 text-right">{level}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ))}
+                        
+                        {/* Voices */}
+                        {layers.voices.map((group) => (
+                          <div key={group.groupId} className="mb-2">
+                            <div className="text-[9px] text-secondary/70 font-mono uppercase mb-1 flex items-center gap-1">
+                              <Mic2 className="w-2.5 h-2.5" />
+                              {group.groupId}
+                            </div>
+                            {group.items.map((item) => {
+                              const level = getLayerLevel(section.id, 'voices', group.groupId, item.name, item.level);
+                              return (
+                                <div key={item.name} className="flex items-center gap-2 mb-1">
+                                  <span className="text-[9px] text-white/60 w-16 truncate" title={item.name}>
+                                    {item.name}
+                                  </span>
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={level}
+                                    onChange={(e) => setLayerAutomation(section.id, 'voices', group.groupId, item.name, { level: parseInt(e.target.value) })}
+                                    className="flex-1 h-1 accent-secondary cursor-pointer"
+                                    data-testid={`slider-voice-${section.id}-${group.groupId}-${item.name}`}
+                                  />
+                                  <span className="text-[8px] text-white/40 w-6 text-right">{level}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ))}
+                        
+                        {layers.instruments.length === 0 && layers.voices.length === 0 && (
+                          <span className="text-[9px] text-white/30 italic">No layers configured</span>
+                        )}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </div>
                 
                 {index < sections.length - 1 && (

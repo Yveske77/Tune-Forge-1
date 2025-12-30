@@ -167,6 +167,12 @@ Genre-aware AI recommendations:
 - **Endpoint**: `/api/agent/creative-suggestions`
 - **Categories**: instruments, effects, structure, mood, production
 - Integrated into AgentPanel creative tab
+- **Apply Button**: Each suggestion has an "Apply" button that adds it to the project:
+  - instruments: adds to Sound Palette
+  - effects: adds to nuance.fx
+  - production: adds to nuance.mix
+  - mood: adds to nuance.vocalTone
+  - structure: adds to architecture.microtags
 
 ## Recent Changes
 

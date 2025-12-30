@@ -41,8 +41,76 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
   const [improvementTopic, setImprovementTopic] = useState("");
   const [copied, setCopied] = useState(false);
   const doc = useStore((s) => s.doc);
+  const addLayerGroup = useStore((s) => s.addLayerGroup);
+  const setNuance = useStore((s) => s.setNuance);
+  const setArchitecture = useStore((s) => s.setArchitecture);
+  const [appliedSuggestions, setAppliedSuggestions] = useState<Set<number>>(new Set());
   
   const hasValidPrompt = Boolean(currentPrompt && currentPrompt.trim().length > 10);
+
+  const applySuggestion = (suggestion: CreativeSuggestion, index: number) => {
+    const suggestionText = suggestion.suggestion;
+    
+    switch (suggestion.category) {
+      case 'instruments': {
+        // Add instrument to the Sound Palette
+        const newGroup = {
+          id: `ai-${Date.now()}`,
+          name: 'AI Suggested',
+          items: [{ name: suggestionText, level: 80 }]
+        };
+        addLayerGroup('instruments', newGroup);
+        toast.success(`Added "${suggestionText}" to Sound Palette`);
+        break;
+      }
+      case 'effects': {
+        // Add effect to nuance.fx
+        const currentFx = doc.nuance.fx || [];
+        if (!currentFx.includes(suggestionText)) {
+          setNuance({ fx: [...currentFx, suggestionText] });
+          toast.success(`Added "${suggestionText}" effect`);
+        } else {
+          toast.info('Effect already applied');
+        }
+        break;
+      }
+      case 'production': {
+        // Add production technique to nuance.mix
+        const currentMix = doc.nuance.mix || [];
+        if (!currentMix.includes(suggestionText)) {
+          setNuance({ mix: [...currentMix, suggestionText] });
+          toast.success(`Added "${suggestionText}" to mix`);
+        } else {
+          toast.info('Production technique already applied');
+        }
+        break;
+      }
+      case 'mood': {
+        // Add mood to vocal tone or mix
+        const currentVocalTone = doc.nuance.vocalTone || [];
+        if (!currentVocalTone.includes(suggestionText)) {
+          setNuance({ vocalTone: [...currentVocalTone, suggestionText] });
+          toast.success(`Added "${suggestionText}" mood`);
+        } else {
+          toast.info('Mood already applied');
+        }
+        break;
+      }
+      case 'structure': {
+        // Add as a microtag for structure suggestions
+        const currentMicrotags = doc.architecture.microtags || [];
+        if (!currentMicrotags.includes(suggestionText)) {
+          setArchitecture({ microtags: [...currentMicrotags, suggestionText] });
+          toast.success(`Added "${suggestionText}" structure hint`);
+        } else {
+          toast.info('Structure hint already applied');
+        }
+        break;
+      }
+    }
+    
+    setAppliedSuggestions(prev => new Set(Array.from(prev).concat(index)));
+  };
 
   const { data: logs = [], isLoading: logsLoading } = useQuery<AgentLog[]>({
     queryKey: ["/api/agent/logs"],
@@ -105,6 +173,7 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
       return res.json();
     },
     onSuccess: () => {
+      setAppliedSuggestions(new Set());
       queryClient.invalidateQueries({ queryKey: ["/api/agent/logs"] });
     },
   });
@@ -303,6 +372,26 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
                     <div className="text-[10px] text-primary/70 bg-primary/10 p-2 rounded border border-primary/20">
                       <span className="font-mono">Example:</span> {s.example}
                     </div>
+                    <Button
+                      size="sm"
+                      variant={appliedSuggestions.has(i) ? "secondary" : "default"}
+                      className={`w-full mt-2 ${appliedSuggestions.has(i) ? 'bg-green-600/20 text-green-400 hover:bg-green-600/30' : ''}`}
+                      onClick={() => applySuggestion(s, i)}
+                      disabled={appliedSuggestions.has(i)}
+                      data-testid={`button-apply-suggestion-${i}`}
+                    >
+                      {appliedSuggestions.has(i) ? (
+                        <>
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          Applied
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="w-3 h-3 mr-1" />
+                          Apply
+                        </>
+                      )}
+                    </Button>
                   </div>
                 ))}
               </div>

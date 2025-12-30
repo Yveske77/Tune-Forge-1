@@ -1,15 +1,27 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { useStore, LaneType, uid } from '@/lib/store';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+
+const MODIFIER_OPTIONS = {
+  tempo: ["slow", "moderate", "fast", "very fast", "flexible", "rubato"],
+  energy: ["gentle", "building", "explosive", "intense", "calm", "powerful", "subdued"],
+  space: ["tight", "spacious", "intimate", "expansive", "compressed", "wide"],
+  texture: ["smooth", "rough", "clean", "distorted", "layered", "sparse", "dense"],
+  mood: ["atmospheric", "moody", "uplifting", "dark", "bright", "ethereal", "aggressive"],
+  dynamics: ["crescendo", "decrescendo", "punchy", "soft", "loud", "whispered"],
+  style: ["anthemic", "minimal", "epic", "intimate", "raw", "polished", "dreamy"],
+};
 
 export function Tube() {
   const doc = useStore((s) => s.doc);
@@ -196,38 +208,89 @@ export function Tube() {
                     />
                   </div>
 
-                  {/* Modifiers Input - Separate Section */}
+                  {/* Modifiers Input - Separate Section with Dropdown */}
                   <div className="mt-2 bg-black/40 rounded border border-white/5 p-2 shadow-inner">
-                    <div className="text-[10px] text-muted-foreground font-mono uppercase mb-1">
-                      <span className="text-secondary">Modifiers</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1 mb-1">
-                      {section.modifiers.map((mod, i) => (
-                        <span 
-                          key={i} 
-                          className="text-[10px] px-1.5 py-0.5 rounded bg-secondary/20 text-secondary border border-secondary/30 cursor-pointer hover:bg-secondary/30"
-                          onClick={() => {
-                            const newModifiers = section.modifiers.filter((_, idx) => idx !== i);
-                            updateSection(section.id, { modifiers: newModifiers });
-                          }}
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[10px] text-muted-foreground font-mono uppercase text-secondary">
+                        Modifiers
+                      </span>
+                      <DropdownMenu modal={false}>
+                        <DropdownMenuTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-5 px-2 text-[9px] bg-secondary/10 hover:bg-secondary/20 border border-secondary/30"
+                            data-testid={`button-modifier-dropdown-${section.id}`}
+                          >
+                            <Plus className="w-2.5 h-2.5 mr-1" /> Add
+                            <ChevronDown className="w-2.5 h-2.5 ml-1" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent 
+                          align="end" 
+                          className="w-48 max-h-64 overflow-y-auto bg-background border-white/10"
+                          onCloseAutoFocus={(e) => e.preventDefault()}
                         >
-                          {mod} ×
-                        </span>
-                      ))}
+                          {Object.entries(MODIFIER_OPTIONS).map(([category, modifiers]) => (
+                            <div key={category}>
+                              <DropdownMenuLabel className="text-[9px] uppercase text-white/40 font-mono">
+                                {category}
+                              </DropdownMenuLabel>
+                              {modifiers.map((mod) => {
+                                const isSelected = section.modifiers.includes(mod);
+                                return (
+                                  <DropdownMenuItem
+                                    key={mod}
+                                    className="text-xs cursor-pointer flex items-center justify-between"
+                                    onSelect={(e) => {
+                                      e.preventDefault();
+                                      if (isSelected) {
+                                        updateSection(section.id, { 
+                                          modifiers: section.modifiers.filter(m => m !== mod) 
+                                        });
+                                      } else {
+                                        updateSection(section.id, { 
+                                          modifiers: [...section.modifiers, mod] 
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <div className={`w-3 h-3 rounded-sm border flex items-center justify-center ${isSelected ? 'bg-secondary border-secondary' : 'border-white/30'}`}>
+                                        {isSelected && <Check className="w-2 h-2 text-black" />}
+                                      </div>
+                                      <span className={isSelected ? "text-secondary" : "text-white/70"}>
+                                        {mod}
+                                      </span>
+                                    </div>
+                                  </DropdownMenuItem>
+                                );
+                              })}
+                              <DropdownMenuSeparator className="bg-white/5" />
+                            </div>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
-                    <input
-                      type="text"
-                      placeholder="Add modifier..."
-                      className="w-full bg-black/30 border border-white/10 rounded px-2 py-1 text-[10px] text-white/70 outline-none focus:border-secondary/50"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                          const newModifiers = [...section.modifiers, e.currentTarget.value.trim()];
-                          updateSection(section.id, { modifiers: newModifiers });
-                          e.currentTarget.value = '';
-                        }
-                      }}
-                      data-testid={`input-section-modifier-${section.id}`}
-                    />
+                    <div className="flex flex-wrap gap-1">
+                      {section.modifiers.length === 0 ? (
+                        <span className="text-[9px] text-white/30 italic">No modifiers selected</span>
+                      ) : (
+                        section.modifiers.map((mod, i) => (
+                          <span 
+                            key={i} 
+                            className="text-[10px] px-1.5 py-0.5 rounded bg-secondary/20 text-secondary border border-secondary/30 cursor-pointer hover:bg-secondary/30 transition-colors"
+                            onClick={() => {
+                              const newModifiers = section.modifiers.filter((_, idx) => idx !== i);
+                              updateSection(section.id, { modifiers: newModifiers });
+                            }}
+                            data-testid={`modifier-tag-${section.id}-${i}`}
+                          >
+                            {mod} ×
+                          </span>
+                        ))
+                      )}
+                    </div>
                   </div>
                 </div>
                 

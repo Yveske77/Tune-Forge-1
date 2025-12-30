@@ -71,16 +71,33 @@ function buildLaneHints(doc: Document): string {
 function buildSectionLayerHints(doc: Document, secId: string): string {
   const sla = doc.sectionLayerAutomation || {};
   const entry = sla[secId] || {};
+  const layers = doc.layers;
   
   const pick = (kind: 'instruments' | 'voices') => {
+    const groups = kind === 'instruments' ? layers.instruments : layers.voices;
     const kk = entry[kind] || {};
-    const items = Object.keys(kk).map((k) => {
-      const v = kk[k] || {};
-      const nm = k.split('::').slice(1).join('::');
-      return { name: nm, level: typeof v.level === 'number' ? v.level : 0, position: v.position };
-    }).filter((x) => x.level > 0);
-    items.sort((a, b) => b.level - a.level);
-    return items.slice(0, 4);
+    
+    // Collect all items with their effective levels (automation override or default)
+    const allItems: { name: string; level: number; position?: string }[] = [];
+    
+    for (const group of groups || []) {
+      for (const item of group.items || []) {
+        const key = `${group.id}::${item.name}`;
+        const automation = kk[key];
+        
+        // Use automation level if set, otherwise use default from layer definition
+        const level = automation?.level !== undefined ? automation.level : (item.level || 0);
+        const position = automation?.position;
+        
+        if (level > 0) {
+          allItems.push({ name: item.name, level, position });
+        }
+      }
+    }
+    
+    // Sort by level descending and take top items
+    allItems.sort((a, b) => b.level - a.level);
+    return allItems.slice(0, 4);
   };
   
   const inst = pick('instruments');

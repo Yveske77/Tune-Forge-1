@@ -1,28 +1,37 @@
 import React, { useState, useMemo } from 'react';
 import { useStore, uid } from '@/lib/store';
 import { cn } from '@/lib/utils';
-import { Settings2, Sliders, Mic2, Drum, Speaker, Music, Plus, X, ChevronDown, ChevronRight } from 'lucide-react';
+import { Settings2, Sliders, Mic2, Drum, Speaker, Music, Plus, X, ChevronDown, ChevronRight, Palette, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import dictionaries from '@/data/dictionaries.json';
 import { TemplateSelector } from '@/components/TemplateSelector';
 import { genreSubgenres } from '@/data/subgenres';
+import { timbreOptions, textureOptions, getEmotionalDescriptor, soundDesignPresets } from '@/data/soundDesign';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export function InstrumentRack() {
   const doc = useStore((s) => s.doc);
   const setArchitecture = useStore((s) => s.setArchitecture);
   const setMeta = useStore((s) => s.setMeta);
   const setLanes = useStore((s) => s.setLanes);
+  const setNuance = useStore((s) => s.setNuance);
   const updateLayerItem = useStore((s) => s.updateLayerItem);
   const setDoc = useStore((s) => s.setDoc);
 
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     meta: true,
     architecture: true,
+    soundDesign: false,
     lanes: true,
     layers: true,
   });
@@ -299,7 +308,7 @@ export function InstrumentRack() {
           </div>
         </Collapsible>
 
-        {/* Global Lanes */}
+        {/* Global Lanes with Emotional Descriptors */}
         <Collapsible open={openSections.lanes} onOpenChange={() => toggleSection('lanes')}>
           <div className="bg-black/20 rounded border border-white/5">
             <CollapsibleTrigger className="w-full p-3 flex items-center justify-between hover:bg-white/5 transition-colors">
@@ -307,22 +316,152 @@ export function InstrumentRack() {
               <ChevronDown className={cn("w-4 h-4 text-white/40 transition-transform", openSections.lanes && "rotate-180")} />
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <div className="px-3 pb-3 space-y-3">
-                {(['energy', 'density', 'brightness', 'vocalPresence'] as const).map(lane => (
-                  <div key={lane} className="flex items-center gap-2">
-                    <span className="text-[10px] text-white/50 w-16 capitalize">{lane}</span>
-                    <input 
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={doc.lanes[lane]}
-                      onChange={(e) => setLanes({ [lane]: Number(e.target.value) })}
-                      className="flex-1 h-1 bg-white/10 rounded appearance-none cursor-pointer"
-                      data-testid={`slider-lane-${lane}`}
-                    />
-                    <span className="text-[10px] text-white/50 w-8 text-right">{doc.lanes[lane]}</span>
+              <div className="px-3 pb-3 space-y-4">
+                {(['energy', 'density', 'brightness', 'vocalPresence'] as const).map(lane => {
+                  const emotionalDesc = getEmotionalDescriptor(lane, doc.lanes[lane]);
+                  return (
+                    <div key={lane} className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <label 
+                          htmlFor={`lane-${lane}`}
+                          className="text-[10px] text-white/50 w-20 capitalize"
+                        >
+                          {lane === 'vocalPresence' ? 'Vocal' : lane}
+                        </label>
+                        <input 
+                          id={`lane-${lane}`}
+                          type="range"
+                          min="0"
+                          max="100"
+                          step="5"
+                          value={doc.lanes[lane]}
+                          onChange={(e) => setLanes({ [lane]: Number(e.target.value) })}
+                          className="flex-1 h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-primary"
+                          aria-label={`${lane} level: ${doc.lanes[lane]} percent`}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={doc.lanes[lane]}
+                          data-testid={`slider-lane-${lane}`}
+                        />
+                        <span className="text-[10px] text-white/50 w-8 text-right font-mono">{doc.lanes[lane]}</span>
+                      </div>
+                      <p className="text-[9px] text-white/30 italic pl-20 leading-tight">{emotionalDesc}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </CollapsibleContent>
+          </div>
+        </Collapsible>
+
+        {/* Sound Design */}
+        <Collapsible open={openSections.soundDesign} onOpenChange={() => toggleSection('soundDesign')}>
+          <div className="bg-black/20 rounded border border-white/5">
+            <CollapsibleTrigger className="w-full p-3 flex items-center justify-between hover:bg-white/5 transition-colors">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-mono text-primary uppercase tracking-widest cursor-pointer">Sound Design</label>
+                <Palette className="w-3 h-3 text-white/20" />
+              </div>
+              <ChevronDown className={cn("w-4 h-4 text-white/40 transition-transform", openSections.soundDesign && "rotate-180")} />
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="px-3 pb-3 space-y-4">
+                {/* Timbre */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] uppercase tracking-wider text-white/40">Timbre</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="w-3 h-3 text-white/30" />
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-xs">
+                          <p className="text-xs">The tonal quality or color of the sound</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
-                ))}
+                  <select
+                    className="w-full bg-black/60 border border-white/10 rounded-sm px-2 py-1.5 text-xs text-white focus:border-primary/50 outline-none"
+                    value={doc.nuance.mix.find(m => timbreOptions.some(t => t.id === m)) || ''}
+                    onChange={(e) => {
+                      const newMix = doc.nuance.mix.filter(m => !timbreOptions.some(t => t.id === m));
+                      if (e.target.value) newMix.push(e.target.value);
+                      setNuance({ mix: newMix });
+                    }}
+                    aria-label="Select sound timbre"
+                    data-testid="select-timbre"
+                  >
+                    <option value="">Select timbre...</option>
+                    {timbreOptions.map(opt => (
+                      <option key={opt.id} value={opt.id}>{opt.name} - {opt.description}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Texture */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] uppercase tracking-wider text-white/40">Texture</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <Info className="w-3 h-3 text-white/30" />
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="max-w-xs">
+                          <p className="text-xs">The surface quality and processing of the sound</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                  <select
+                    className="w-full bg-black/60 border border-white/10 rounded-sm px-2 py-1.5 text-xs text-white focus:border-primary/50 outline-none"
+                    value={doc.nuance.fx.find(f => textureOptions.some(t => t.id === f)) || ''}
+                    onChange={(e) => {
+                      const newFx = doc.nuance.fx.filter(f => !textureOptions.some(t => t.id === f));
+                      if (e.target.value) newFx.push(e.target.value);
+                      setNuance({ fx: newFx });
+                    }}
+                    aria-label="Select sound texture"
+                    data-testid="select-texture"
+                  >
+                    <option value="">Select texture...</option>
+                    {textureOptions.map(opt => (
+                      <option key={opt.id} value={opt.id}>{opt.name} - {opt.description}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="space-y-2">
+                  <span className="text-[9px] uppercase tracking-wider text-white/40">Quick Presets</span>
+                  <div className="flex flex-wrap gap-1">
+                    {soundDesignPresets.map(preset => (
+                      <TooltipProvider key={preset.id}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => {
+                                const newMix = doc.nuance.mix.filter(m => !timbreOptions.some(t => t.id === m));
+                                newMix.push(preset.timbre);
+                                const newFx = doc.nuance.fx.filter(f => !textureOptions.some(t => t.id === f));
+                                newFx.push(preset.texture);
+                                setNuance({ mix: newMix, fx: newFx });
+                              }}
+                              className="text-[9px] px-2 py-1 rounded bg-white/5 text-white/60 hover:bg-white/10 hover:text-white transition-colors"
+                              data-testid={`preset-${preset.id}`}
+                            >
+                              {preset.name}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            <p className="text-xs">{preset.description}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    ))}
+                  </div>
+                </div>
               </div>
             </CollapsibleContent>
           </div>

@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { useStore, LaneType, uid } from '@/lib/store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Plus, Trash2, ChevronDown, Check, Music, Mic2, ChevronRight, ListMusic } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, Check, Music, Mic2, ChevronRight, ListMusic, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -17,16 +17,23 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { songStructurePresets } from '@/data/subgenres';
+import { sectionDurationsByGenre, getRecommendedDuration } from '@/data/sectionDurations';
 
 const MODIFIER_OPTIONS = {
   tempo: ["slow", "moderate", "fast", "very fast", "flexible", "rubato"],
   energy: ["gentle", "building", "explosive", "intense", "calm", "powerful", "subdued"],
   space: ["tight", "spacious", "intimate", "expansive", "compressed", "wide"],
   texture: ["smooth", "rough", "clean", "distorted", "layered", "sparse", "dense"],
-  mood: ["atmospheric", "moody", "uplifting", "dark", "bright", "ethereal", "aggressive"],
+  mood: ["energetic", "relaxed", "building", "aggressive", "melancholic", "euphoric", "hypnotic", "intimate"],
   dynamics: ["crescendo", "decrescendo", "punchy", "soft", "loud", "whispered"],
-  style: ["anthemic", "minimal", "epic", "intimate", "raw", "polished", "dreamy"],
+  style: ["anthemic", "minimal", "epic", "raw", "polished", "dreamy"],
 };
 
 export function Tube() {
@@ -42,6 +49,14 @@ export function Tube() {
   const layers = doc.layers;
   const sectionLayerAutomation = doc.sectionLayerAutomation;
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const currentGenre = useMemo(() => {
+    const genres = doc.architecture.genreTags;
+    for (const genre of genres) {
+      if (sectionDurationsByGenre[genre]) return genre;
+    }
+    return 'Pop';
+  }, [doc.architecture.genreTags]);
 
   const getLayerLevel = (sectionId: string, kind: 'instruments' | 'voices', groupId: string, itemName: string, defaultLevel: number): number => {
     const key = `${groupId}::${itemName}`;
@@ -199,6 +214,10 @@ export function Tube() {
 
           {sections.map((section, index) => {
             const sectionLanes = section.lanes || doc.lanes;
+            const sectionMood = section.modifiers?.find(m => 
+              ['energetic', 'relaxed', 'building', 'aggressive', 'melancholic', 'euphoric', 'hypnotic', 'intimate'].includes(m)
+            );
+            const recommendation = getRecommendedDuration(currentGenre, section.type, sectionMood);
             
             return (
               <motion.div
@@ -215,6 +234,7 @@ export function Tube() {
                       value={section.label}
                       onChange={(e) => updateSection(section.id, { label: e.target.value })}
                       className="bg-transparent text-sm font-display font-bold outline-none w-full text-white/90 placeholder-white/20"
+                      aria-label={`Section label for ${section.type}`}
                       data-testid={`input-section-label-${section.id}`}
                     />
                   </div>
@@ -223,15 +243,16 @@ export function Tube() {
                     size="icon" 
                     className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
                     onClick={() => removeSection(section.id)}
+                    aria-label={`Remove ${section.label} section`}
                     data-testid={`button-remove-section-${section.id}`}
                   >
                     <Trash2 className="w-3 h-3" />
                   </Button>
                 </div>
 
-                {/* Bars Length Slider */}
+                {/* Bars Length Slider with Recommendation */}
                 <div className="mb-2 px-2 py-1.5 bg-black/40 rounded border border-white/5">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <div className="flex flex-col items-center min-w-[32px]">
                       <span className="text-sm font-bold text-white font-mono">{section.bars || 8}</span>
                       <span className="text-[8px] text-muted-foreground font-mono uppercase">Bars</span>
@@ -243,9 +264,40 @@ export function Tube() {
                       step="2"
                       value={section.bars || 8}
                       onChange={(e) => updateSection(section.id, { bars: parseInt(e.target.value) })}
-                      className="flex-1 h-1 accent-primary cursor-pointer"
+                      className="flex-1 h-2 accent-primary cursor-pointer rounded-full"
+                      aria-label={`Bars for ${section.label}: ${section.bars || 8} bars`}
+                      aria-valuemin={2}
+                      aria-valuemax={64}
+                      aria-valuenow={section.bars || 8}
                       data-testid={`slider-bars-${section.id}`}
                     />
+                    {recommendation && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => updateSection(section.id, { bars: recommendation.defaultBars })}
+                              className={cn(
+                                "p-1 rounded transition-colors",
+                                (section.bars || 8) === recommendation.defaultBars 
+                                  ? "text-green-400 bg-green-500/10" 
+                                  : "text-yellow-400/60 hover:text-yellow-400 hover:bg-yellow-500/10"
+                              )}
+                              aria-label={`Apply recommended ${recommendation.defaultBars} bars for ${currentGenre} ${section.type}`}
+                              data-testid={`button-apply-recommendation-${section.id}`}
+                            >
+                              <Lightbulb className="w-3 h-3" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-xs">
+                            <p className="text-xs font-medium">{currentGenre}: {recommendation.defaultBars} bars</p>
+                            {sectionMood && <p className="text-[10px] text-primary/80">Mood: {sectionMood}</p>}
+                            <p className="text-[10px] text-white/60">{recommendation.description}</p>
+                            <p className="text-[10px] text-white/40 mt-1">Range: {recommendation.minBars}-{recommendation.maxBars} bars</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </div>
                 </div>
 

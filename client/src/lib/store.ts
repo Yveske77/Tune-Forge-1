@@ -23,6 +23,7 @@ export interface Section {
   modifiers: string[];
   emphasis: string[];
   tension: number;
+  bars: number;
   lanes?: Record<LaneType, number>;
 }
 
@@ -194,11 +195,11 @@ function defaultDocument(): Document {
     },
     arrangementTracks: {
       A: [
-        { id: uid('sec'), type: 'Intro', label: 'Intro', content: 'pad arpeggio, soft textures', modifiers: ['calm', 'atmospheric'], emphasis: [], tension: 20 },
-        { id: uid('sec'), type: 'Verse', label: 'Verse 1', content: 'minimal groove, intimate vocal', modifiers: ['moody', 'intimate'], emphasis: [], tension: 45 },
-        { id: uid('sec'), type: 'Pre-Chorus', label: 'Pre-Chorus', content: 'rising tension, filtered builds', modifiers: ['rising tension', 'bright'], emphasis: [], tension: 65 },
-        { id: uid('sec'), type: 'Chorus', label: 'Chorus', content: 'full energy, wide synths, anthemic vocal', modifiers: ['anthemic', 'explosive'], emphasis: ['*EXPLOSIVE*'], tension: 90 },
-        { id: uid('sec'), type: 'Outro', label: 'Outro', content: 'fade out, echoed vocal', modifiers: ['atmospheric', 'calm'], emphasis: [], tension: 25 },
+        { id: uid('sec'), type: 'Intro', label: 'Intro', content: 'pad arpeggio, soft textures', modifiers: ['calm', 'atmospheric'], emphasis: [], tension: 20, bars: 8 },
+        { id: uid('sec'), type: 'Verse', label: 'Verse 1', content: 'minimal groove, intimate vocal', modifiers: ['moody', 'intimate'], emphasis: [], tension: 45, bars: 16 },
+        { id: uid('sec'), type: 'Pre-Chorus', label: 'Pre-Chorus', content: 'rising tension, filtered builds', modifiers: ['rising tension', 'bright'], emphasis: [], tension: 65, bars: 8 },
+        { id: uid('sec'), type: 'Chorus', label: 'Chorus', content: 'full energy, wide synths, anthemic vocal', modifiers: ['anthemic', 'explosive'], emphasis: ['*EXPLOSIVE*'], tension: 90, bars: 16 },
+        { id: uid('sec'), type: 'Outro', label: 'Outro', content: 'fade out, echoed vocal', modifiers: ['atmospheric', 'calm'], emphasis: [], tension: 25, bars: 8 },
       ],
       B: [],
     },

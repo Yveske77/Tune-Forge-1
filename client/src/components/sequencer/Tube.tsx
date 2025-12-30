@@ -93,6 +93,7 @@ export function Tube() {
       modifiers: [],
       emphasis: [],
       tension: 50,
+      bars: 8,
     });
   };
 
@@ -178,6 +179,26 @@ export function Tube() {
                   >
                     <Trash2 className="w-3 h-3" />
                   </Button>
+                </div>
+
+                {/* Bars Length Slider */}
+                <div className="mb-2 px-2 py-1.5 bg-black/40 rounded border border-white/5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[9px] text-muted-foreground font-mono uppercase">Bars</span>
+                    <div className="flex items-center gap-2 flex-1">
+                      <input
+                        type="range"
+                        min="2"
+                        max="64"
+                        step="2"
+                        value={section.bars || 8}
+                        onChange={(e) => updateSection(section.id, { bars: parseInt(e.target.value) })}
+                        className="flex-1 h-1 accent-primary cursor-pointer"
+                        data-testid={`slider-bars-${section.id}`}
+                      />
+                      <span className="text-[10px] text-white/80 font-mono w-6 text-right">{section.bars || 8}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex-1 flex flex-col gap-2 relative">
@@ -337,13 +358,13 @@ export function Tube() {
                       <div className="mt-1 bg-black/40 rounded border border-white/5 p-2 shadow-inner max-h-48 overflow-y-auto">
                         {/* Instruments */}
                         {layers.instruments.map((group) => (
-                          <div key={group.groupId} className="mb-2">
+                          <div key={group.id} className="mb-2">
                             <div className="text-[9px] text-primary/70 font-mono uppercase mb-1 flex items-center gap-1">
                               <Music className="w-2.5 h-2.5" />
-                              {group.groupId}
+                              {group.name}
                             </div>
                             {group.items.map((item) => {
-                              const level = getLayerLevel(section.id, 'instruments', group.groupId, item.name, item.level);
+                              const level = getLayerLevel(section.id, 'instruments', group.id, item.name, item.level);
                               return (
                                 <div key={item.name} className="flex items-center gap-2 mb-1">
                                   <span className="text-[9px] text-white/60 w-16 truncate" title={item.name}>
@@ -354,9 +375,9 @@ export function Tube() {
                                     min="0"
                                     max="100"
                                     value={level}
-                                    onChange={(e) => setLayerAutomation(section.id, 'instruments', group.groupId, item.name, { level: parseInt(e.target.value) })}
+                                    onChange={(e) => setLayerAutomation(section.id, 'instruments', group.id, item.name, { level: parseInt(e.target.value) })}
                                     className="flex-1 h-1 accent-primary cursor-pointer"
-                                    data-testid={`slider-instrument-${section.id}-${group.groupId}-${item.name}`}
+                                    data-testid={`slider-instrument-${section.id}-${group.id}-${item.name}`}
                                   />
                                   <span className="text-[8px] text-white/40 w-6 text-right">{level}</span>
                                 </div>
@@ -367,13 +388,13 @@ export function Tube() {
                         
                         {/* Voices */}
                         {layers.voices.map((group) => (
-                          <div key={group.groupId} className="mb-2">
+                          <div key={group.id} className="mb-2">
                             <div className="text-[9px] text-secondary/70 font-mono uppercase mb-1 flex items-center gap-1">
                               <Mic2 className="w-2.5 h-2.5" />
-                              {group.groupId}
+                              {group.name}
                             </div>
                             {group.items.map((item) => {
-                              const level = getLayerLevel(section.id, 'voices', group.groupId, item.name, item.level);
+                              const level = getLayerLevel(section.id, 'voices', group.id, item.name, item.level);
                               return (
                                 <div key={item.name} className="flex items-center gap-2 mb-1">
                                   <span className="text-[9px] text-white/60 w-16 truncate" title={item.name}>
@@ -384,9 +405,9 @@ export function Tube() {
                                     min="0"
                                     max="100"
                                     value={level}
-                                    onChange={(e) => setLayerAutomation(section.id, 'voices', group.groupId, item.name, { level: parseInt(e.target.value) })}
+                                    onChange={(e) => setLayerAutomation(section.id, 'voices', group.id, item.name, { level: parseInt(e.target.value) })}
                                     className="flex-1 h-1 accent-secondary cursor-pointer"
-                                    data-testid={`slider-voice-${section.id}-${group.groupId}-${item.name}`}
+                                    data-testid={`slider-voice-${section.id}-${group.id}-${item.name}`}
                                   />
                                   <span className="text-[8px] text-white/40 w-6 text-right">{level}</span>
                                 </div>

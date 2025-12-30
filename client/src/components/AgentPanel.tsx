@@ -43,6 +43,8 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
   
   const hasValidPrompt = Boolean(currentPrompt && currentPrompt.trim().length > 10);
 
+  if (!isOpen) return null;
+
   const { data: logs = [], isLoading: logsLoading } = useQuery<AgentLog[]>({
     queryKey: ["/api/agent/logs"],
     queryFn: async () => {
@@ -142,13 +144,22 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 w-96 bg-card/95 backdrop-blur-lg border-l border-white/10 z-50 flex flex-col shadow-2xl" data-testid="agent-panel">
+    <div className="fixed inset-y-0 right-0 w-96 bg-card/95 backdrop-blur-lg border-l border-white/10 z-[100] flex flex-col shadow-2xl" data-testid="agent-panel">
       <div className="h-14 border-b border-white/10 flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-2">
           <Bot className="w-5 h-5 text-primary" />
           <span className="font-semibold text-white">AI Assistant</span>
         </div>
-        <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0" data-testid="button-close-agent">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }} 
+          className="h-8 w-8 p-0 hover:bg-white/10" 
+          data-testid="button-close-agent"
+        >
           <X className="w-4 h-4" />
         </Button>
       </div>

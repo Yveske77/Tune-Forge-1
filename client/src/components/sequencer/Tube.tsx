@@ -89,8 +89,8 @@ export function Tube() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-x-auto overflow-y-hidden relative no-scrollbar bg-gradient-to-br from-black/80 to-black/60" ref={containerRef}>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
+      <div className="flex-1 overflow-x-auto overflow-y-hidden relative bg-gradient-to-br from-black/80 to-black/60" ref={containerRef} style={{ overflowX: 'scroll' }}>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
         
         <div className="relative flex h-full p-8 min-w-max z-10">
           
@@ -180,34 +180,54 @@ export function Tube() {
                     onChange={(v) => setSectionLaneValue(section.id, 'vocalPresence', v)}
                   />
 
-                  <div className="mt-4 flex-1 flex flex-col gap-2 overflow-y-auto no-scrollbar">
-                    {/* Lyrics Input */}
-                    <div className="bg-black/40 rounded border border-white/5 p-2 shadow-inner">
-                      <div className="text-[10px] text-muted-foreground font-mono uppercase mb-1">
-                        Lyrics
-                      </div>
-                      <textarea
-                        value={section.content}
-                        onChange={(e) => updateSection(section.id, { content: e.target.value })}
-                        placeholder="Enter lyrics or description..."
-                        className="w-full bg-black/30 border border-white/5 rounded px-2 py-1 text-xs text-white/80 outline-none resize-none min-h-[50px]"
-                        data-testid={`textarea-section-content-${section.id}`}
-                      />
+                  {/* Lyrics Input - Separate Section */}
+                  <div className="mt-3 bg-black/40 rounded border border-white/5 p-2 shadow-inner">
+                    <div className="text-[10px] text-muted-foreground font-mono uppercase mb-1 flex items-center gap-1">
+                      <span className="text-primary">Lyrics</span>
+                      <span className="text-white/30 text-[8px]">({section.content?.length || 0} chars)</span>
                     </div>
+                    <textarea
+                      value={section.content}
+                      onChange={(e) => updateSection(section.id, { content: e.target.value })}
+                      placeholder="Enter lyrics or description..."
+                      className="w-full bg-black/30 border border-white/10 rounded px-2 py-1.5 text-xs text-white/90 outline-none resize-none min-h-[60px] focus:border-primary/50 transition-colors"
+                      rows={3}
+                      data-testid={`textarea-section-content-${section.id}`}
+                    />
+                  </div>
 
-                    {/* Modifiers Input */}
-                    <div className="bg-black/40 rounded border border-white/5 p-2 shadow-inner">
-                      <div className="text-[10px] text-muted-foreground font-mono uppercase mb-1">
-                        Modifiers
-                      </div>
-                      <div className="flex flex-wrap gap-1">
-                        {section.modifiers.map((mod, i) => (
-                          <span key={i} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary border border-primary/30">
-                            {mod}
-                          </span>
-                        ))}
-                      </div>
+                  {/* Modifiers Input - Separate Section */}
+                  <div className="mt-2 bg-black/40 rounded border border-white/5 p-2 shadow-inner">
+                    <div className="text-[10px] text-muted-foreground font-mono uppercase mb-1">
+                      <span className="text-secondary">Modifiers</span>
                     </div>
+                    <div className="flex flex-wrap gap-1 mb-1">
+                      {section.modifiers.map((mod, i) => (
+                        <span 
+                          key={i} 
+                          className="text-[10px] px-1.5 py-0.5 rounded bg-secondary/20 text-secondary border border-secondary/30 cursor-pointer hover:bg-secondary/30"
+                          onClick={() => {
+                            const newModifiers = section.modifiers.filter((_, idx) => idx !== i);
+                            updateSection(section.id, { modifiers: newModifiers });
+                          }}
+                        >
+                          {mod} ×
+                        </span>
+                      ))}
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Add modifier..."
+                      className="w-full bg-black/30 border border-white/10 rounded px-2 py-1 text-[10px] text-white/70 outline-none focus:border-secondary/50"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                          const newModifiers = [...section.modifiers, e.currentTarget.value.trim()];
+                          updateSection(section.id, { modifiers: newModifiers });
+                          e.currentTarget.value = '';
+                        }
+                      }}
+                      data-testid={`input-section-modifier-${section.id}`}
+                    />
                   </div>
                 </div>
                 

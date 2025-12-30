@@ -39,11 +39,10 @@ interface AgentPanelProps {
 export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) {
   const [activeTab, setActiveTab] = useState<"analyze" | "creative" | "improve" | "logs">("analyze");
   const [improvementTopic, setImprovementTopic] = useState("");
+  const [copied, setCopied] = useState(false);
   const doc = useStore((s) => s.doc);
   
   const hasValidPrompt = Boolean(currentPrompt && currentPrompt.trim().length > 10);
-
-  if (!isOpen) return null;
 
   const { data: logs = [], isLoading: logsLoading } = useQuery<AgentLog[]>({
     queryKey: ["/api/agent/logs"],
@@ -126,8 +125,6 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
     },
   });
 
-  const [copied, setCopied] = useState(false);
-
   const copyToClipboard = async (text: string) => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
@@ -136,15 +133,21 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
   };
 
   const applyOptimizedPrompt = (prompt: string) => {
-    // This is a simplified implementation - in a real app you might want to parse the prompt
-    // For now we'll just update a hypothetical 'globalDescription' or similar
-    // Since the compiler generates the prompt from the doc, we'd ideally reverse-map it
-    // But for this prototype, we'll just show the feedback.
     toast.info("Prompt optimization suggestions applied to analysis view.");
   };
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <div className="fixed inset-y-0 right-0 w-96 bg-card/95 backdrop-blur-lg border-l border-white/10 z-[100] flex flex-col shadow-2xl" data-testid="agent-panel">
+    <>
+      <div 
+        className="fixed inset-0 bg-black/50 z-[99]" 
+        onClick={onClose}
+        data-testid="agent-panel-backdrop"
+      />
+      <div className="fixed inset-y-0 right-0 w-96 bg-card/95 backdrop-blur-lg border-l border-white/10 z-[100] flex flex-col shadow-2xl" data-testid="agent-panel">
       <div className="h-14 border-b border-white/10 flex items-center justify-between px-4 shrink-0">
         <div className="flex items-center gap-2">
           <Bot className="w-5 h-5 text-primary" />
@@ -418,6 +421,7 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
           </>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }

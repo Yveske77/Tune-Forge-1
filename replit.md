@@ -171,6 +171,10 @@ Genre-aware AI recommendations:
 ## Recent Changes
 
 ### December 2025
+- **Per-Section Layers**: Major architectural shift - layers (instruments/voices) are now managed per-section instead of globally. Each section has its own `layers` array containing independent instrument/voice selections
+- **Sound Palette**: Global layers renamed to "Sound Palette" - acts as a template that sections can copy from using the "From Palette" button
+- **Hierarchical Prompt Compilation**: Compiler now uses section.layers directly with hierarchical bracketing format `[Section { attr1; attr2; ... }]`
+- **Legacy Deprecation**: `sectionLayerAutomation` and `setLayerAutomation` deprecated in favor of per-section layers
 - Added subgenre template system with 6 pre-configured genre templates
 - Implemented export panel with 4 formats (prompt, lyrics, project JSON, MIDI structure)
 - Added AI creative suggestions feature for genre-aware production recommendations

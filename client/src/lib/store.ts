@@ -93,6 +93,7 @@ export interface Document {
     A: Section[];
     B: Section[];
   };
+  /** @deprecated Use section.layers instead - per-section layer arrays are now the canonical source */
   sectionLayerAutomation: Record<string, Record<string, Record<string, { level?: number; position?: string }>>>;
   dynamicVars: Record<string, string>;
   lyrics: {
@@ -462,6 +463,7 @@ export const useStore = create<AppState>((set, get) => ({
     };
   }),
 
+  /** @deprecated Use updateSectionLayerItem instead - per-section layers are now the canonical source */
   setLayerAutomation: (sectionId, kind, groupId, itemName, patch) => set((s) => {
     const sla = { ...s.doc.sectionLayerAutomation };
     const sec = { ...(sla[sectionId] || {}) };

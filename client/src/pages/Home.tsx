@@ -5,6 +5,7 @@ import { InstrumentRack } from '@/components/sequencer/InstrumentRack';
 import { PromptPreview } from '@/components/sequencer/PromptPreview';
 import { ProjectManager } from '@/components/ProjectManager';
 import { AgentPanel } from '@/components/AgentPanel';
+import { ExportPanel } from '@/components/ExportPanel';
 import { useStore } from '@/lib/store';
 import { compileToSuno } from '@/lib/compiler';
 import { cn } from '@/lib/utils';
@@ -35,6 +36,7 @@ export default function Home() {
         
         <div className="flex items-center gap-3">
           <ProjectManager />
+          <ExportPanel />
           <Button 
             variant="outline" 
             size="sm" 

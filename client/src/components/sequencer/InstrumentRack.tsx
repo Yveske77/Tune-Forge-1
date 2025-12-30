@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Settings2, Sliders, Mic2, Drum, Speaker, Music, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import dictionaries from '@/data/dictionaries.json';
+import { TemplateSelector } from '@/components/TemplateSelector';
 
 export function InstrumentRack() {
   const doc = useStore((s) => s.doc);
@@ -42,6 +43,9 @@ export function InstrumentRack() {
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto no-scrollbar space-y-6">
+        {/* Template Selector */}
+        <TemplateSelector />
+        
         {/* Meta */}
         <div className="space-y-3 bg-black/20 p-3 rounded border border-white/5">
           <label className="text-xs font-mono text-primary uppercase tracking-widest mb-2 block">Meta</label>

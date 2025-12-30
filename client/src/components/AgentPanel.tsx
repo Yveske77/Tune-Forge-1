@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Bot, Sparkles, Search, CheckCircle2, AlertCircle, X, Loader2, Copy, Check } from "lucide-react";
+import { Bot, Sparkles, Search, CheckCircle2, AlertCircle, X, Loader2, Copy, Check, Lightbulb, Wand2 } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
 import { useStore } from "@/lib/store";
 import { toast } from "sonner";
@@ -23,6 +23,13 @@ interface PromptAnalysis {
   optimizedPrompt: string;
 }
 
+interface CreativeSuggestion {
+  category: 'instruments' | 'effects' | 'structure' | 'mood' | 'production';
+  suggestion: string;
+  reason: string;
+  example: string;
+}
+
 interface AgentPanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -30,8 +37,11 @@ interface AgentPanelProps {
 }
 
 export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) {
-  const [activeTab, setActiveTab] = useState<"analyze" | "improve" | "logs">("analyze");
+  const [activeTab, setActiveTab] = useState<"analyze" | "creative" | "improve" | "logs">("analyze");
   const [improvementTopic, setImprovementTopic] = useState("");
+  const doc = useStore((s) => s.doc);
+  
+  const hasValidPrompt = Boolean(currentPrompt && currentPrompt.trim().length > 10);
 
   const { data: logs = [], isLoading: logsLoading } = useQuery<AgentLog[]>({
     queryKey: ["/api/agent/logs"],
@@ -75,6 +85,29 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
     },
   });
 
+  const creativeMutation = useMutation<{ suggestions: CreativeSuggestion[] }, Error>({
+    mutationFn: async () => {
+      const res = await fetch("/api/agent/creative-suggestions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ 
+          prompt: currentPrompt,
+          context: {
+            genres: doc.architecture.genreTags,
+            tempo: doc.architecture.tempoBpm,
+            key: doc.architecture.key,
+          }
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to get creative suggestions");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/agent/logs"] });
+    },
+  });
+
   const runAssessmentMutation = useMutation({
     mutationFn: async () => {
       const res = await fetch("/api/agent/full-assessment", {
@@ -91,7 +124,6 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
     },
   });
 
-  const updateDocument = useStore((s) => s.updateDocument);
   const [copied, setCopied] = useState(false);
 
   const copyToClipboard = async (text: string) => {
@@ -122,16 +154,16 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
       </div>
 
       <div className="flex border-b border-white/10">
-        {(["analyze", "improve", "logs"] as const).map((tab) => (
+        {(["analyze", "creative", "improve", "logs"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 py-2 text-sm font-mono uppercase tracking-wider transition-colors ${
+            className={`flex-1 py-2 text-xs font-mono uppercase tracking-wider transition-colors ${
               activeTab === tab ? "text-primary border-b-2 border-primary" : "text-white/50 hover:text-white/70"
             }`}
             data-testid={`tab-${tab}`}
           >
-            {tab}
+            {tab === "creative" ? <Wand2 className="w-3 h-3 mx-auto" /> : tab}
           </button>
         ))}
       </div>
@@ -205,6 +237,67 @@ export function AgentPanel({ isOpen, onClose, currentPrompt }: AgentPanelProps) 
                     </p>
                   </div>
                 )}
+              </div>
+            )}
+          </>
+        )}
+
+        {activeTab === "creative" && (
+          <>
+            <div className="space-y-2">
+              <p className="text-sm text-white/60">
+                Get AI-powered creative suggestions to enhance your composition with unique ideas.
+              </p>
+              {!hasValidPrompt && (
+                <div className="text-xs text-yellow-400 bg-yellow-500/10 p-2 rounded border border-yellow-500/20">
+                  Add sections with content to generate creative suggestions.
+                </div>
+              )}
+              <Button
+                onClick={() => creativeMutation.mutate()}
+                disabled={!hasValidPrompt || creativeMutation.isPending}
+                className="w-full bg-gradient-to-r from-primary to-purple-500"
+                data-testid="button-get-creative-suggestions"
+              >
+                {creativeMutation.isPending ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Lightbulb className="w-4 h-4 mr-2" />
+                )}
+                Generate Creative Ideas
+              </Button>
+            </div>
+
+            {creativeMutation.data?.suggestions && creativeMutation.data.suggestions.length > 0 && (
+              <div className="space-y-2">
+                <span className="text-xs font-mono text-white/50 uppercase">Suggestions</span>
+                {creativeMutation.data.suggestions.map((s, i) => (
+                  <div key={i} className="bg-black/30 rounded-lg p-3 border border-white/10 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] px-2 py-0.5 rounded uppercase font-mono ${
+                        s.category === 'instruments' ? 'bg-blue-500/20 text-blue-400' :
+                        s.category === 'effects' ? 'bg-purple-500/20 text-purple-400' :
+                        s.category === 'structure' ? 'bg-green-500/20 text-green-400' :
+                        s.category === 'mood' ? 'bg-pink-500/20 text-pink-400' :
+                        'bg-orange-500/20 text-orange-400'
+                      }`}>
+                        {s.category}
+                      </span>
+                    </div>
+                    <p className="text-sm font-medium text-white">{s.suggestion}</p>
+                    <p className="text-xs text-white/60">{s.reason}</p>
+                    <div className="text-[10px] text-primary/70 bg-primary/10 p-2 rounded border border-primary/20">
+                      <span className="font-mono">Example:</span> {s.example}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {creativeMutation.isError && (
+              <div className="text-sm text-red-400 bg-red-500/10 p-3 rounded border border-red-500/20">
+                <AlertCircle className="w-4 h-4 inline mr-2" />
+                Failed to get suggestions. Please try again.
               </div>
             )}
           </>

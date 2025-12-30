@@ -210,7 +210,7 @@ export function Tube() {
           
           <div className="w-24 flex items-center justify-center opacity-30 hover:opacity-100 transition-opacity ml-4">
             <button 
-              onClick={handleAddSection}
+              onClick={() => handleAddSection('Verse')}
               className="w-12 h-12 rounded-full border border-dashed border-white/20 flex items-center justify-center hover:bg-white/5 hover:border-white/50 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all"
               data-testid="button-add-section-circle"
             >

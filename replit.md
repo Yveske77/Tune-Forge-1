@@ -150,9 +150,30 @@ The `/lib/compiler.ts` module transforms Document state into platform-specific p
 - `@replit/vite-plugin-cartographer` - Development tooling
 - `@replit/vite-plugin-dev-banner` - Development environment indicator
 
+### Subgenre Templates
+The template system provides pre-configured starting points for various music genres:
+- **Location**: `/client/src/data/templates.ts`, `/client/src/components/TemplateSelector.tsx`
+- **Templates**: Melodic Deep House, Synthwave, Lo-Fi Hip Hop, Epic Cinematic, Indie Pop, Ambient Drone
+- Each template includes: architecture presets (tempo, key, genres), lane defaults, suggested sections, instrument groups, and nuance presets
+
+### Export System
+Multi-format export functionality:
+- **Location**: `/client/src/components/ExportPanel.tsx`
+- **Formats**: Suno/Udio Prompt, Lyrics Text, Project JSON, MIDI Structure
+- Supports copy-to-clipboard and file download
+
+### AI Creative Suggestions
+Genre-aware AI recommendations:
+- **Endpoint**: `/api/agent/creative-suggestions`
+- **Categories**: instruments, effects, structure, mood, production
+- Integrated into AgentPanel creative tab
+
 ## Recent Changes
 
 ### December 2025
+- Added subgenre template system with 6 pre-configured genre templates
+- Implemented export panel with 4 formats (prompt, lyrics, project JSON, MIDI structure)
+- Added AI creative suggestions feature for genre-aware production recommendations
 - Added Replit Auth integration for secure user authentication
 - Implemented user-scoped projects and files (data isolation)
 - Added AI Agent system for prompt quality analysis and improvements

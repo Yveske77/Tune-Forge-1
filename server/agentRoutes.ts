@@ -5,6 +5,7 @@ import {
   searchBestPractices,
   analyzePromptQuality,
   runFullAssessment,
+  getCreativeSuggestions,
 } from "./services/aiAgent";
 
 // Bypass auth middleware - inject test user for development
@@ -116,6 +117,36 @@ export function registerAgentRoutes(app: Express): void {
     } catch (error) {
       console.error("Error analyzing prompt:", error);
       res.status(500).json({ error: "Failed to analyze prompt" });
+    }
+  });
+
+  // Get creative suggestions
+  app.post("/api/agent/creative-suggestions", bypassAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
+      const { prompt, context } = req.body;
+      if (!prompt) {
+        return res.status(400).json({ error: "Prompt is required" });
+      }
+
+      const suggestions = await getCreativeSuggestions(prompt, context || { genres: [], tempo: 120, key: 'C' });
+
+      await storage.createAgentLog({
+        userId,
+        runType: "creative_suggestions",
+        status: "completed",
+        summary: `Generated ${suggestions.length} creative suggestions`,
+        details: { prompt, context },
+        suggestions,
+      });
+
+      res.json({ suggestions });
+    } catch (error) {
+      console.error("Error getting creative suggestions:", error);
+      res.status(500).json({ error: "Failed to get creative suggestions" });
     }
   });
 

@@ -132,6 +132,70 @@ Return as JSON with format:
   }
 }
 
+export interface CreativeSuggestion {
+  category: 'instruments' | 'effects' | 'structure' | 'mood' | 'production';
+  suggestion: string;
+  reason: string;
+  example: string;
+}
+
+export async function getCreativeSuggestions(prompt: string, context: { genres: string[]; tempo: number; key: string }): Promise<CreativeSuggestion[]> {
+  const systemPrompt = `You are a creative AI music producer assistant. Analyze the given prompt and suggest creative enhancements that would make the music more interesting, unique, or emotionally impactful.
+
+Focus on:
+- Unique instrument combinations
+- Textural effects and production techniques
+- Structural innovations
+- Mood enhancements
+- Genre-blending opportunities
+
+Be specific and actionable with suggestions.`;
+
+  const userPrompt = `Analyze this AI music generation prompt and suggest creative improvements:
+
+Prompt: "${prompt}"
+
+Context:
+- Genres: ${context.genres.join(', ')}
+- Tempo: ${context.tempo} BPM
+- Key: ${context.key}
+
+Return JSON with format:
+{"suggestions": [
+  {"category": "instruments"|"effects"|"structure"|"mood"|"production", 
+   "suggestion": "specific suggestion",
+   "reason": "why this would improve the track",
+   "example": "brief example of how to implement"}
+]}
+
+Provide 4-6 creative suggestions.`;
+
+  try {
+    console.log("Getting creative suggestions for prompt");
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+      response_format: { type: "json_object" },
+      max_tokens: 2000,
+    });
+
+    const content = response.choices[0]?.message?.content || "{}";
+    try {
+      const parsed = JSON.parse(content);
+      return Array.isArray(parsed.suggestions) ? parsed.suggestions : [];
+    } catch {
+      console.error("Failed to parse creative suggestions:", content);
+      return [];
+    }
+  } catch (error) {
+    console.error("Error getting creative suggestions:", error);
+    return [];
+  }
+}
+
 export async function analyzePromptQuality(prompt: string): Promise<{
   score: number;
   feedback: string[];

@@ -185,7 +185,35 @@ export function Tube() {
       <div className="flex-1 overflow-x-auto overflow-y-hidden relative bg-gradient-to-br from-black/80 to-black/60" ref={containerRef} style={{ overflowX: 'scroll' }}>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none" />
         
-        <div className="relative flex h-full p-8 min-w-max z-10">
+        {/* Timeline Scrollbar/Ruler */}
+        <div className="sticky top-0 left-0 right-0 z-20 bg-black/80 border-b border-white/10 backdrop-blur-sm">
+          <div className="flex items-center h-8 px-8 min-w-max">
+            {sections.map((section, index) => {
+              const totalBars = sections.reduce((sum, s) => sum + (s.bars || 8), 0);
+              const sectionBars = section.bars || 8;
+              const barsBefore = sections.slice(0, index).reduce((sum, s) => sum + (s.bars || 8), 0);
+              return (
+                <div 
+                  key={section.id}
+                  className="flex items-center justify-center border-r border-white/10 last:border-r-0 shrink-0 cursor-pointer hover:bg-white/5 transition-colors"
+                  style={{ width: SECTION_WIDTH + 8 }}
+                  onClick={() => {
+                    const container = containerRef.current;
+                    if (container) {
+                      container.scrollTo({ left: index * (SECTION_WIDTH + 8), behavior: 'smooth' });
+                    }
+                  }}
+                  data-testid={`timeline-marker-${section.id}`}
+                >
+                  <span className="text-[10px] font-mono text-white/60">{section.type}</span>
+                  <span className="text-[9px] font-mono text-white/30 ml-1">({sectionBars})</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="relative flex h-full p-8 pt-2 min-w-max z-10">
           
           <svg className="absolute top-0 left-0 h-full w-full pointer-events-none z-0 overflow-visible" style={{ left: '32px', top: '78px', height: '100px' }}>
             <defs>

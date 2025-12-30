@@ -2,7 +2,7 @@ import React, { useRef, useState, useMemo } from 'react';
 import { useStore, LaneType, uid } from '@/lib/store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Plus, Trash2, ChevronDown, Check, Music, Mic2, ChevronRight, ListMusic, Lightbulb } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, Check, Music, Mic2, ChevronRight, ListMusic, Lightbulb, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -42,12 +42,14 @@ export function Tube() {
   const updateSection = useStore((s) => s.updateSection);
   const removeSection = useStore((s) => s.removeSection);
   const setSectionLaneValue = useStore((s) => s.setSectionLaneValue);
-  const setLayerAutomation = useStore((s) => s.setLayerAutomation);
+  const addSectionLayerItem = useStore((s) => s.addSectionLayerItem);
+  const removeSectionLayerItem = useStore((s) => s.removeSectionLayerItem);
+  const updateSectionLayerItem = useStore((s) => s.updateSectionLayerItem);
+  const copyPaletteToSection = useStore((s) => s.copyPaletteToSection);
   const [expandedLayers, setExpandedLayers] = useState<Record<string, boolean>>({});
   
   const sections = doc.arrangementTracks[doc.activeVariant];
-  const layers = doc.layers;
-  const sectionLayerAutomation = doc.sectionLayerAutomation;
+  const palette = doc.layers;
   const containerRef = useRef<HTMLDivElement>(null);
 
   const currentGenre = useMemo(() => {
@@ -58,13 +60,12 @@ export function Tube() {
     return 'Pop';
   }, [doc.architecture.genreTags]);
 
-  const getLayerLevel = (sectionId: string, kind: 'instruments' | 'voices', groupId: string, itemName: string, defaultLevel: number): number => {
-    const key = `${groupId}::${itemName}`;
-    return sectionLayerAutomation[sectionId]?.[kind]?.[key]?.level ?? defaultLevel;
-  };
-
   const toggleLayersExpanded = (sectionId: string) => {
     setExpandedLayers(prev => ({ ...prev, [sectionId]: !prev[sectionId] }));
+  };
+  
+  const getPaletteItems = (kind: 'instruments' | 'voices') => {
+    return palette[kind].flatMap(g => g.items.map(i => i.name));
   };
 
   const SECTION_WIDTH = 180;
@@ -476,77 +477,138 @@ export function Tube() {
                           <Music className="w-3 h-3" />
                           <span>Layers</span>
                           <span className="text-white/30 text-[8px]">
-                            ({layers.instruments.reduce((acc, g) => acc + g.items.length, 0) + layers.voices.reduce((acc, g) => acc + g.items.length, 0)})
+                            ({(section.layers?.instruments?.length || 0) + (section.layers?.voices?.length || 0)})
                           </span>
                         </span>
                         <ChevronRight className={cn("w-3 h-3 transition-transform", expandedLayers[section.id] && "rotate-90")} />
                       </Button>
                     </CollapsibleTrigger>
                     <CollapsibleContent>
-                      <div className="mt-1 bg-black/40 rounded border border-white/5 p-2 shadow-inner max-h-48 overflow-y-auto">
+                      <div className="mt-1 bg-black/40 rounded border border-white/5 p-2 shadow-inner max-h-56 overflow-y-auto">
+                        {/* Quick Actions */}
+                        <div className="flex gap-1 mb-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 text-[9px] px-1.5 bg-primary/20 hover:bg-primary/30 text-primary"
+                            onClick={() => copyPaletteToSection(section.id)}
+                            data-testid={`button-copy-palette-${section.id}`}
+                          >
+                            <Plus className="w-2.5 h-2.5 mr-0.5" /> From Palette
+                          </Button>
+                        </div>
+
                         {/* Instruments */}
-                        {layers.instruments.map((group) => (
-                          <div key={group.id} className="mb-2">
-                            <div className="text-[9px] text-primary/70 font-mono uppercase mb-1 flex items-center gap-1">
-                              <Music className="w-2.5 h-2.5" />
-                              {group.name}
-                            </div>
-                            {group.items.map((item) => {
-                              const level = getLayerLevel(section.id, 'instruments', group.id, item.name, item.level);
-                              return (
-                                <div key={item.name} className="flex items-center gap-2 mb-1">
-                                  <span className="text-[9px] text-white/60 w-16 truncate" title={item.name}>
-                                    {item.name}
-                                  </span>
-                                  <input
-                                    type="range"
-                                    min="0"
-                                    max="100"
-                                    value={level}
-                                    onChange={(e) => setLayerAutomation(section.id, 'instruments', group.id, item.name, { level: parseInt(e.target.value) })}
-                                    className="flex-1 h-1 accent-primary cursor-pointer"
-                                    data-testid={`slider-instrument-${section.id}-${group.id}-${item.name}`}
-                                  />
-                                  <span className="text-[8px] text-white/40 w-6 text-right">{level}</span>
-                                </div>
-                              );
-                            })}
+                        <div className="mb-2">
+                          <div className="text-[9px] text-primary/70 font-mono uppercase mb-1 flex items-center justify-between">
+                            <span className="flex items-center gap-1">
+                              <Music className="w-2.5 h-2.5" /> Instruments
+                            </span>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-4 w-4 hover:bg-primary/20">
+                                  <Plus className="w-2.5 h-2.5" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="bg-background border-white/10 max-h-48 overflow-y-auto">
+                                <DropdownMenuLabel className="text-[10px] text-white/40">Add from Palette</DropdownMenuLabel>
+                                {getPaletteItems('instruments').map((name) => (
+                                  <DropdownMenuItem 
+                                    key={name}
+                                    onClick={() => addSectionLayerItem(section.id, 'instruments', { name, level: 70, position: 'center' })}
+                                    className="text-xs font-mono cursor-pointer"
+                                    disabled={section.layers?.instruments?.some(i => i.name === name)}
+                                  >
+                                    {name}
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
-                        ))}
+                          {(section.layers?.instruments || []).map((item) => (
+                            <div key={item.name} className="flex items-center gap-1 mb-1 group/item">
+                              <button
+                                onClick={() => removeSectionLayerItem(section.id, 'instruments', item.name)}
+                                className="w-3 h-3 text-destructive/50 hover:text-destructive opacity-0 group-hover/item:opacity-100 transition-opacity"
+                                data-testid={`button-remove-instrument-${section.id}-${item.name}`}
+                              >
+                                <X className="w-2.5 h-2.5" />
+                              </button>
+                              <span className="text-[9px] text-white/60 w-14 truncate" title={item.name}>
+                                {item.name}
+                              </span>
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={item.level}
+                                onChange={(e) => updateSectionLayerItem(section.id, 'instruments', item.name, { level: parseInt(e.target.value) })}
+                                className="flex-1 h-1 accent-primary cursor-pointer"
+                                data-testid={`slider-instrument-${section.id}-${item.name}`}
+                              />
+                              <span className="text-[8px] text-white/40 w-5 text-right">{item.level}</span>
+                            </div>
+                          ))}
+                          {(!section.layers?.instruments || section.layers.instruments.length === 0) && (
+                            <span className="text-[9px] text-white/20 italic pl-4">None</span>
+                          )}
+                        </div>
                         
                         {/* Voices */}
-                        {layers.voices.map((group) => (
-                          <div key={group.id} className="mb-2">
-                            <div className="text-[9px] text-secondary/70 font-mono uppercase mb-1 flex items-center gap-1">
-                              <Mic2 className="w-2.5 h-2.5" />
-                              {group.name}
-                            </div>
-                            {group.items.map((item) => {
-                              const level = getLayerLevel(section.id, 'voices', group.id, item.name, item.level);
-                              return (
-                                <div key={item.name} className="flex items-center gap-2 mb-1">
-                                  <span className="text-[9px] text-white/60 w-16 truncate" title={item.name}>
-                                    {item.name}
-                                  </span>
-                                  <input
-                                    type="range"
-                                    min="0"
-                                    max="100"
-                                    value={level}
-                                    onChange={(e) => setLayerAutomation(section.id, 'voices', group.id, item.name, { level: parseInt(e.target.value) })}
-                                    className="flex-1 h-1 accent-secondary cursor-pointer"
-                                    data-testid={`slider-voice-${section.id}-${group.id}-${item.name}`}
-                                  />
-                                  <span className="text-[8px] text-white/40 w-6 text-right">{level}</span>
-                                </div>
-                              );
-                            })}
+                        <div className="mb-1">
+                          <div className="text-[9px] text-secondary/70 font-mono uppercase mb-1 flex items-center justify-between">
+                            <span className="flex items-center gap-1">
+                              <Mic2 className="w-2.5 h-2.5" /> Voices
+                            </span>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-4 w-4 hover:bg-secondary/20">
+                                  <Plus className="w-2.5 h-2.5" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="bg-background border-white/10 max-h-48 overflow-y-auto">
+                                <DropdownMenuLabel className="text-[10px] text-white/40">Add from Palette</DropdownMenuLabel>
+                                {getPaletteItems('voices').map((name) => (
+                                  <DropdownMenuItem 
+                                    key={name}
+                                    onClick={() => addSectionLayerItem(section.id, 'voices', { name, level: 70, position: 'center' })}
+                                    className="text-xs font-mono cursor-pointer"
+                                    disabled={section.layers?.voices?.some(i => i.name === name)}
+                                  >
+                                    {name}
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
-                        ))}
-                        
-                        {layers.instruments.length === 0 && layers.voices.length === 0 && (
-                          <span className="text-[9px] text-white/30 italic">No layers configured</span>
-                        )}
+                          {(section.layers?.voices || []).map((item) => (
+                            <div key={item.name} className="flex items-center gap-1 mb-1 group/item">
+                              <button
+                                onClick={() => removeSectionLayerItem(section.id, 'voices', item.name)}
+                                className="w-3 h-3 text-destructive/50 hover:text-destructive opacity-0 group-hover/item:opacity-100 transition-opacity"
+                                data-testid={`button-remove-voice-${section.id}-${item.name}`}
+                              >
+                                <X className="w-2.5 h-2.5" />
+                              </button>
+                              <span className="text-[9px] text-white/60 w-14 truncate" title={item.name}>
+                                {item.name}
+                              </span>
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={item.level}
+                                onChange={(e) => updateSectionLayerItem(section.id, 'voices', item.name, { level: parseInt(e.target.value) })}
+                                className="flex-1 h-1 accent-secondary cursor-pointer"
+                                data-testid={`slider-voice-${section.id}-${item.name}`}
+                              />
+                              <span className="text-[8px] text-white/40 w-5 text-right">{item.level}</span>
+                            </div>
+                          ))}
+                          {(!section.layers?.voices || section.layers.voices.length === 0) && (
+                            <span className="text-[9px] text-white/20 italic pl-4">None</span>
+                          )}
+                        </div>
                       </div>
                     </CollapsibleContent>
                   </Collapsible>

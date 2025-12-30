@@ -6,13 +6,18 @@ export type LaneType = 'energy' | 'density' | 'brightness' | 'vocalPresence';
 export interface LayerItem {
   name: string;
   level: number;
-  position: 'front' | 'center' | 'back' | 'wide' | 'mono';
+  position?: 'front' | 'center' | 'back' | 'wide' | 'mono';
 }
 
 export interface LayerGroup {
   id: string;
   name: string;
   items: LayerItem[];
+}
+
+export interface SectionLayers {
+  instruments: LayerItem[];
+  voices: LayerItem[];
 }
 
 export interface Section {
@@ -25,6 +30,7 @@ export interface Section {
   tension: number;
   bars: number;
   lanes?: Record<LaneType, number>;
+  layers?: SectionLayers;
 }
 
 export interface Meta {
@@ -127,7 +133,13 @@ interface AppState {
   reorderSections: (orderedIds: string[]) => void;
   setSectionLaneValue: (sectionId: string, laneKey: LaneType, value: number) => void;
   
-  // Layer automation
+  // Section layer management
+  addSectionLayerItem: (sectionId: string, kind: 'instruments' | 'voices', item: LayerItem) => void;
+  removeSectionLayerItem: (sectionId: string, kind: 'instruments' | 'voices', itemName: string) => void;
+  updateSectionLayerItem: (sectionId: string, kind: 'instruments' | 'voices', itemName: string, patch: Partial<LayerItem>) => void;
+  copyPaletteToSection: (sectionId: string) => void;
+  
+  // Layer automation (legacy - for migration)
   setLayerAutomation: (sectionId: string, kind: 'instruments' | 'voices', groupId: string, itemName: string, patch: { level?: number; position?: string }) => void;
   
   // Paint UI
@@ -349,6 +361,101 @@ export const useStore = create<AppState>((set, get) => ({
           [v]: s.doc.arrangementTracks[v].map((sec) => {
             if (sec.id !== sectionId) return sec;
             return { ...sec, lanes: { ...(sec.lanes || s.doc.lanes), [laneKey]: value } };
+          }),
+        },
+      },
+    };
+  }),
+
+  addSectionLayerItem: (sectionId, kind, item) => set((s) => {
+    const v = s.doc.activeVariant;
+    return {
+      doc: {
+        ...s.doc,
+        arrangementTracks: {
+          ...s.doc.arrangementTracks,
+          [v]: s.doc.arrangementTracks[v].map((sec) => {
+            if (sec.id !== sectionId) return sec;
+            const currentLayers = sec.layers || { instruments: [], voices: [] };
+            const currentItems = currentLayers[kind] || [];
+            if (currentItems.some(i => i.name === item.name)) return sec;
+            return { 
+              ...sec, 
+              layers: { 
+                ...currentLayers, 
+                [kind]: [...currentItems, item] 
+              } 
+            };
+          }),
+        },
+      },
+    };
+  }),
+
+  removeSectionLayerItem: (sectionId, kind, itemName) => set((s) => {
+    const v = s.doc.activeVariant;
+    return {
+      doc: {
+        ...s.doc,
+        arrangementTracks: {
+          ...s.doc.arrangementTracks,
+          [v]: s.doc.arrangementTracks[v].map((sec) => {
+            if (sec.id !== sectionId) return sec;
+            const currentLayers = sec.layers || { instruments: [], voices: [] };
+            return { 
+              ...sec, 
+              layers: { 
+                ...currentLayers, 
+                [kind]: (currentLayers[kind] || []).filter(i => i.name !== itemName) 
+              } 
+            };
+          }),
+        },
+      },
+    };
+  }),
+
+  updateSectionLayerItem: (sectionId, kind, itemName, patch) => set((s) => {
+    const v = s.doc.activeVariant;
+    return {
+      doc: {
+        ...s.doc,
+        arrangementTracks: {
+          ...s.doc.arrangementTracks,
+          [v]: s.doc.arrangementTracks[v].map((sec) => {
+            if (sec.id !== sectionId) return sec;
+            const currentLayers = sec.layers || { instruments: [], voices: [] };
+            return { 
+              ...sec, 
+              layers: { 
+                ...currentLayers, 
+                [kind]: (currentLayers[kind] || []).map(i => 
+                  i.name === itemName ? { ...i, ...patch } : i
+                ) 
+              } 
+            };
+          }),
+        },
+      },
+    };
+  }),
+
+  copyPaletteToSection: (sectionId) => set((s) => {
+    const v = s.doc.activeVariant;
+    const palette = s.doc.layers;
+    const instruments = palette.instruments.flatMap(g => g.items);
+    const voices = palette.voices.flatMap(g => g.items);
+    return {
+      doc: {
+        ...s.doc,
+        arrangementTracks: {
+          ...s.doc.arrangementTracks,
+          [v]: s.doc.arrangementTracks[v].map((sec) => {
+            if (sec.id !== sectionId) return sec;
+            return { 
+              ...sec, 
+              layers: { instruments, voices } 
+            };
           }),
         },
       },

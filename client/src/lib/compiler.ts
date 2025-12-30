@@ -68,40 +68,17 @@ function buildLaneHints(doc: Document): string {
   return parts.length ? bracket(`Arc: ${parts.join(', ')}`) : '';
 }
 
-function buildSectionLayerHints(doc: Document, secId: string): string {
-  const sla = doc.sectionLayerAutomation || {};
-  const entry = sla[secId] || {};
-  const layers = doc.layers;
+function buildSectionLayerHints(sec: { layers?: { instruments?: { name: string; level: number; position?: string }[]; voices?: { name: string; level: number; position?: string }[] } }): string {
+  const layers = sec.layers || { instruments: [], voices: [] };
   
-  const pick = (kind: 'instruments' | 'voices') => {
-    const groups = kind === 'instruments' ? layers.instruments : layers.voices;
-    const kk = entry[kind] || {};
-    
-    // Collect all items with their effective levels (automation override or default)
-    const allItems: { name: string; level: number; position?: string }[] = [];
-    
-    for (const group of groups || []) {
-      for (const item of group.items || []) {
-        const key = `${group.id}::${item.name}`;
-        const automation = kk[key];
-        
-        // Use automation level if set, otherwise use default from layer definition
-        const level = automation?.level !== undefined ? automation.level : (item.level || 0);
-        const position = automation?.position;
-        
-        if (level > 0) {
-          allItems.push({ name: item.name, level, position });
-        }
-      }
-    }
-    
-    // Sort by level descending and take top items
-    allItems.sort((a, b) => b.level - a.level);
-    return allItems.slice(0, 4);
+  const pick = (items: { name: string; level: number; position?: string }[] | undefined) => {
+    const filtered = (items || []).filter(item => item.level > 0);
+    filtered.sort((a, b) => b.level - a.level);
+    return filtered.slice(0, 4);
   };
   
-  const inst = pick('instruments');
-  const voc = pick('voices');
+  const inst = pick(layers.instruments);
+  const voc = pick(layers.voices);
   const bits: string[] = [];
   
   if (voc.length) {
@@ -122,7 +99,7 @@ function buildArrangement(doc: Document): string {
     const content = normalizeSpace(sec.content || '');
     const mods = joinClean(sec.modifiers);
     const emph = joinClean(sec.emphasis, ' ');
-    const layerHints = buildSectionLayerHints(doc, sec.id);
+    const layerHints = buildSectionLayerHints(sec);
 
     // Build section-specific attributes as nested structure
     const sectionAttrs: string[] = [];

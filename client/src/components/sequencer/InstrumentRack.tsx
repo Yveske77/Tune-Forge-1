@@ -467,18 +467,19 @@ export function InstrumentRack() {
           </div>
         </Collapsible>
 
-        {/* Layers */}
+        {/* Layer Palette */}
         <Collapsible open={openSections.layers} onOpenChange={() => toggleSection('layers')}>
           <div className="bg-black/20 rounded border border-white/5">
             <CollapsibleTrigger className="w-full p-3 flex items-center justify-between hover:bg-white/5 transition-colors">
               <div className="flex items-center gap-2">
-                <label className="text-xs font-mono text-primary uppercase tracking-widest cursor-pointer">Layers</label>
+                <label className="text-xs font-mono text-primary uppercase tracking-widest cursor-pointer">Sound Palette</label>
                 <Sliders className="w-3 h-3 text-white/20" />
               </div>
               <ChevronDown className={cn("w-4 h-4 text-white/40 transition-transform", openSections.layers && "rotate-180")} />
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="px-3 pb-3 space-y-3">
+                <p className="text-[9px] text-white/40 italic">Define available sounds here. Add them to individual sections in the timeline.</p>
                 {/* Instruments */}
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">

@@ -1,89 +1,48 @@
 import React, { useEffect, useMemo, useRef } from 'react'
-import { usePromptStore } from '../store'
+import { usePromptStore } from './store'
+import { computeAdaptiveLanes, buildMemory, computePhase } from './adaptiveEngine'
 
 function lerp(a,b,t){ return a + (b-a)*t }
 function clamp(x,a,b){ return Math.max(a, Math.min(b, x)) }
 
+function createAdaptiveSection(block, sections, index, mode = 'insert') {
+  const memory = buildMemory(sections, index);
+  const phase = computePhase(index, sections.length + (mode === 'insert' ? 1 : 0));
 
-function getVal(source, ctx){
-  if(!source) return null
-  if(typeof source === 'number') return source
-  if(typeof source === 'string'){
-    const [root, key] = source.split('.')
-    if(root === 'prev') return ctx.prev?.[key]
-    if(root === 'next') return ctx.next?.[key]
-  }
-  return null
-}
+  // Previous section context
+  const prevSec = sections[index - 1];
+  // Next section context (if inserting, it's the one at index; if replacing, it's the one after?)
+  // For simplicity, let's say next is sections[index] (which is being shifted or replaced)
+  const nextSec = sections[index];
 
-function applyRule(rule, ctx, fallback){
-  if(!rule) return fallback
-  const cap = rule.cap || [0,100]
-  const lo = cap[0] ?? 0
-  const hi = cap[1] ?? 100
+  const ctx = {
+      prev: prevSec?.lanes,
+      next: nextSec?.lanes,
+      prevType: prevSec?.type,
+      phase,
+      memory
+  };
 
-  const from = (rule.from ? getVal(rule.from, ctx) : null)
-  const base = (from == null ? fallback : from)
+  const adaptiveLanes = computeAdaptiveLanes(block, ctx);
 
-  const op = rule.op || 'set'
-  const v = rule.value
-
-  let out = fallback
-
-  if(op === 'set'){
-    out = (typeof v === 'number') ? v : base
-  } else if(op === 'add'){
-    out = (base ?? 0) + (v ?? 0)
-  } else if(op === 'sub'){
-    out = (base ?? 0) - (v ?? 0)
-  } else if(op === 'mul'){
-    out = (base ?? 0) * (v ?? 1)
-  } else if(op === 'max'){
-    out = Math.max((base ?? 0), (v ?? 0))
-  } else if(op === 'min'){
-    out = Math.min((base ?? 0), (v ?? 0))
-  } else if(op === 'context_add'){
-    const prevType = (ctx.prevType||'')
-    const add = (prevType === (rule.ifPrevType||'') ? (rule.value ?? 0) : (rule.else ?? 0))
-    out = (base ?? 0) + add
-  } else if(op === 'context_set'){
-    const cmp = (getVal(rule.from, ctx) ?? base ?? 0)
-    const ifGte = rule.ifGte ?? 0
-    out = (cmp >= ifGte) ? (rule.then ?? fallback) : (rule.else ?? fallback)
-  }
-
-  // clamp
-  if(!Number.isFinite(out)) out = fallback
-  out = Math.max(lo, Math.min(hi, out))
-  return out
-}
-
-function computeAdaptiveLanes(block, prevLanes, nextLanes, prevType){
-  const rules = block.adaptiveRules || null
-  if(!rules) return { ...(block.lanes||{}) }
-  const ctx = { prev: prevLanes || null, next: nextLanes || null, prevType: prevType || '' }
-  const base = block.lanes || {}
-  const energy = applyRule(rules.energy, ctx, base.energy ?? (prevLanes?.energy ?? 50))
-  const density = applyRule(rules.density, ctx, base.density ?? (prevLanes?.density ?? 50))
-  const brightness = applyRule(rules.brightness, ctx, base.brightness ?? (prevLanes?.brightness ?? 50))
-  const vocalPresence = applyRule(rules.vocalPresence, ctx, base.vocalPresence ?? (prevLanes?.vocalPresence ?? 50))
-  return { energy, density, brightness, vocalPresence }
-}
-
-
-function sectionFromBlock(block, idx){
   const id = `sec_${Date.now()}_${Math.floor(Math.random()*1e6)}`
   const type = block.sectionType || 'Verse'
   const label = block.label || type
+
   return {
-    id,
-    type,
-    label,
-    content: '',
-    modifiers: block.modifiers || [],
-    emphasis: block.emphasis ? [block.emphasis] : [],
-    tension: block.lanes?.energy ?? 50,
-    lanes: { ...(block.lanes||{}) },
+    section: {
+        id,
+        type,
+        label,
+        content: '',
+        modifiers: block.modifiers || [],
+        emphasis: block.emphasis ? [block.emphasis] : [],
+        tension: adaptiveLanes.energy,
+        lanes: adaptiveLanes,
+    },
+    isAdaptive: !!block.adaptiveRules,
+    lanesComputed: adaptiveLanes,
+    lanesPrev: ctx.prev
   }
 }
 
@@ -152,16 +111,28 @@ export default function TubeTimeline(){
   }
 
   function buildPreviewSections(base, insertIndex, mode, block){
-    const sec = sectionFromBlock(block)
+    const { section, isAdaptive, lanesComputed, lanesPrev } = createAdaptiveSection(block, base, insertIndex, mode);
+
     const arr = [...base]
     if(mode === "replace" && base.length){
       const rIdx = clamp(insertIndex, 0, base.length-1)
-      arr[rIdx] = { ...arr[rIdx], ...sec, id: arr[rIdx].id } // keep id for stable feel
+      arr[rIdx] = { ...arr[rIdx], ...section, id: arr[rIdx].id } // keep id for stable feel
     } else {
       const i = clamp(insertIndex, 0, base.length)
-      arr.splice(i, 0, sec)
+      arr.splice(i, 0, section)
     }
-    return { arr, sec }
+    return {
+        arr,
+        section,
+        computed: {
+            isAdaptive,
+            lanesComputed,
+            lanesPrev,
+            previewSections: arr,
+            insertIndex,
+            mode
+        }
+    }
   }
 
 
@@ -423,8 +394,8 @@ export default function TubeTimeline(){
             const x = e.clientX - rect.left
             const count = Math.max(1, sections.length || 1)
             const { idx, mode, insertIndex } = computeHoverFromX(x, rect.width, count)
-            const { arr } = buildPreviewSections(sections, insertIndex, mode, preview.block)
-            updateBlockPreview(idx, mode, { previewSections: arr, insertIndex })
+            const { computed } = buildPreviewSections(sections, insertIndex, mode, preview.block)
+            updateBlockPreview(idx, mode, computed)
           }}
           onDragLeave={(e)=>{
             // keep preview active but clear hover if leaving canvas
@@ -438,11 +409,12 @@ export default function TubeTimeline(){
             const mode = preview?.mode
             const block = preview?.block
             if(block && typeof insertIndex === 'number'){
-              const sec = sectionFromBlock(block)
+              // Re-compute to ensure we capture the state at drop moment (same as preview)
+              const { section } = createAdaptiveSection(block, sections, insertIndex, mode)
               if(mode === 'replace' && sections.length){
-                replaceSectionAtIndexActiveVariant(insertIndex, sec)
+                replaceSectionAtIndexActiveVariant(insertIndex, section)
               } else {
-                insertSectionAtIndexActiveVariant(insertIndex, sec)
+                insertSectionAtIndexActiveVariant(insertIndex, section)
               }
             }
             cancelBlockPreview()

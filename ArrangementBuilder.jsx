@@ -2,9 +2,10 @@ import React, { useMemo } from 'react'
 import { DndContext, closestCenter } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import dict from '../data/dictionaries.json'
-import { uid } from '../utils/id'
-import { usePromptStore } from '../store'
+import dict from './dictionaries.json'
+import { uid } from './id'
+import { usePromptStore } from './store'
+import { analyzeArrangement } from './ConfidenceAnalyzer'
 
 const SECTION_TYPES = ["Intro","Verse","Pre-Chorus","Chorus","Bridge","Outro","Break","Drop","Interlude"]
 
@@ -16,8 +17,8 @@ function tensionSuggestions(tension){
 }
 
 function SortableSectionCard({ sec }){
-  const update = usePromptStore(s => s.updateSection)
-  const remove = usePromptStore(s => s.removeSection)
+  const update = usePromptStore(s => s.updateSectionInActiveVariant)
+  const remove = usePromptStore(s => s.removeSectionFromActiveVariant)
 
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: sec.id })
   const style = { transform: CSS.Transform.toString(transform), transition }
@@ -128,11 +129,15 @@ function SortableSectionCard({ sec }){
 }
 
 export default function ArrangementBuilder(){
+  const getActiveArrangement = usePromptStore(s => s.getActiveArrangement)
   const doc = usePromptStore(s => s.doc)
   const addSection = usePromptStore(s => s.addSectionToActiveVariant)
   const reorderSections = usePromptStore(s => s.reorderActiveVariant)
 
-  const ids = useMemo(() => (doc.arrangement||[]).map(s => s.id), [doc.arrangement])
+  const activeArrangement = getActiveArrangement()
+  const ids = useMemo(() => (activeArrangement||[]).map(s => s.id), [activeArrangement])
+
+  const analysis = useMemo(() => analyzeArrangement(activeArrangement), [activeArrangement])
 
   const onDragEnd = (event) => {
     const { active, over } = event
@@ -145,7 +150,7 @@ export default function ArrangementBuilder(){
   const add = () => addSection({
     id: uid("sec"),
     type: "Verse",
-    label: `Verse ${(doc.arrangement||[]).filter(s=>String(s.type).toLowerCase()==='verse').length + 1}`,
+    label: `Verse ${(activeArrangement||[]).filter(s=>String(s.type).toLowerCase()==='verse').length + 1}`,
     content: "",
     modifiers: [],
     emphasis: [],
@@ -157,16 +162,30 @@ export default function ArrangementBuilder(){
       <div className="label">Arrangement Builder</div>
       <div className="sub">Drag to reorder. Each section becomes [Label: content] (modifiers) emphasis.</div>
 
+      {analysis && analysis.indicators.length > 0 && (
+        <div className="row" style={{marginTop:10, gap:8}}>
+            {analysis.indicators.map((ind, i) => (
+                <span key={i} className={`pill ${ind.type === 'good' ? 'ok' : ind.type === 'warn' ? 'danger' : 'active'}`}>
+                    {ind.label}
+                </span>
+            ))}
+            {analysis.descriptors.map((desc, i) => (
+                <span key={`d_${i}`} className="pill muted">{desc}</span>
+            ))}
+            <span className="pill" style={{marginLeft:'auto'}}>Score: {analysis.score}</span>
+        </div>
+      )}
+
       <div className="row" style={{marginTop:10}}>
         <button className="btn small" type="button" onClick={add}>Add Section</button>
-        <span className="pill">{(doc.arrangement||[]).length} sections</span>
+        <span className="pill">{(activeArrangement||[]).length} sections</span>
       </div>
 
       <div style={{marginTop:12}}>
         <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd}>
           <SortableContext items={ids} strategy={verticalListSortingStrategy}>
             <div className="cardlist">
-              {(doc.arrangement||[]).map(sec => <SortableSectionCard key={sec.id} sec={sec} />)}
+              {(activeArrangement||[]).map(sec => <SortableSectionCard key={sec.id} sec={sec} />)}
             </div>
           </SortableContext>
         </DndContext>

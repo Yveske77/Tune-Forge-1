@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react'
-import { usePromptStore, HISTORY_LIMIT } from '../store'
-import { compileToSuno } from '../compiler/suno'
-import { compileToUdio } from '../compiler/udio'
-import { compileToGenericLLM } from '../compiler/generic'
+import { usePromptStore, HISTORY_LIMIT } from './store'
+import { createSnapshot, restoreSnapshot } from './IntentSnapshot'
 
 function downloadText(filename, text){
   const blob = new Blob([text], {type:"text/plain;charset=utf-8"})
@@ -45,12 +43,33 @@ export default function ExportPanel({ compiledPrompt, lyrics, toast }){
 
   const exportProjectFile = () => { downloadJSON(`${base}_project.json`, doc); toast?.("Exported project JSON") }
 
+  const exportSnapshotFile = () => {
+      const snap = createSnapshot(doc);
+      if(snap) {
+          downloadJSON(`${base}_snapshot_v${snap._version}.json`, snap);
+          toast?.("Exported Intent Snapshot");
+      }
+  }
+
   const importProjectFile = async (file) => {
     const text = await file.text()
     let obj = null
     try { obj = JSON.parse(text) } catch {}
     const ok = importProject(obj)
     toast?.(ok ? "Imported project" : "Invalid project file")
+  }
+
+  const importSnapshotFile = async (file) => {
+      const text = await file.text()
+      try {
+          const json = JSON.parse(text)
+          const restored = restoreSnapshot(json)
+          setDoc(restored)
+          toast?.("Restored Snapshot")
+      } catch (e) {
+          toast?.("Invalid Snapshot file")
+          console.error(e)
+      }
   }
 
   const downloadAssets = () => {
@@ -104,6 +123,21 @@ export default function ExportPanel({ compiledPrompt, lyrics, toast }){
             e.target.value = ""
           }} />
         </label>
+      </div>
+
+      <div className="row" style={{marginTop:8}}>
+        <button className="btn small" type="button" onClick={exportSnapshotFile}>Save Intent Snapshot</button>
+        <label className="btn small" style={{cursor:'pointer'}}>
+          Load Intent Snapshot
+          <input type="file" accept="application/json" hidden onChange={(e)=>{
+            const f = e.target.files?.[0]
+            if(f) importSnapshotFile(f)
+            e.target.value = ""
+          }} />
+        </label>
+      </div>
+
+      <div className="row" style={{marginTop:8}}>
         <button className="btn small danger" type="button" onClick={() => { clearHistory(); toast?.("History cleared") }}>
           Clear History
         </button>

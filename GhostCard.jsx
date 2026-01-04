@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { usePromptStore } from '../store'
+import { usePromptStore } from './store'
 
 function clamp(n, a, b){ return Math.max(a, Math.min(b, n)) }
 
